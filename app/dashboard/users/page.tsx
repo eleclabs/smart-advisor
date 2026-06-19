@@ -150,6 +150,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
   const query = String(params?.q || "").trim();
   const mode = params?.mode;
   const selectedId = params?.id;
+  const showUserList = mode !== "view" && mode !== "edit" && mode !== "add";
   const userDocuments = query
     ? await UserRepository.search(query)
     : await UserRepository.findAll();
@@ -183,26 +184,21 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
         <article><span>ผู้ดูแลระบบ</span><strong>{adminCount}</strong></article>
       </div>
 
-      <div className="management-card">
-        <div className="management-section-header">
-          <div><h2>ค้นหาผู้ใช้งาน</h2><p>ค้นหาด้วยชื่อหรืออีเมล</p></div>
-        </div>
-        <form className="screening-search" method="get">
-          <input name="q" defaultValue={query} placeholder="กรอกชื่อหรืออีเมล" />
-          <button className="management-primary-button" type="submit">ค้นหา</button>
-          {query ? <Link href="/dashboard/users">ล้างการค้นหา</Link> : null}
-        </form>
-      </div>
-
-      <div className="management-card">
-        <div className="management-section-header">
-          <div><h2>รายชื่อผู้ใช้งาน</h2><p>{users.length} รายการ</p></div>
-        </div>
-        {users.length === 0 ? (
-          <p className="empty-state">ไม่พบข้อมูลผู้ใช้งาน</p>
-        ) : (
-          <div className="student-table-wrap">
-            <table className="student-table user-table">
+      {showUserList ? (
+        <div className="management-card">
+          <div className="management-section-header user-list-header">
+            <div><h2>รายชื่อผู้ใช้งาน</h2><p>{users.length} รายการ</p></div>
+            <form aria-label="ค้นหาผู้ใช้งาน" className="user-inline-search" method="get">
+              <input name="q" defaultValue={query} placeholder="ค้นหาชื่อหรืออีเมล" />
+              <button className="management-primary-button" type="submit">ค้นหา</button>
+              {query ? <Link href="/dashboard/users">ล้าง</Link> : null}
+            </form>
+          </div>
+          {users.length === 0 ? (
+            <p className="empty-state">ไม่พบข้อมูลผู้ใช้งาน</p>
+          ) : (
+            <div className="student-table-wrap">
+              <table className="student-table user-table">
               <thead>
                 <tr>
                   <th>ชื่อ-นามสกุล</th><th>อีเมล</th><th>สิทธิ์การใช้งาน</th>
@@ -245,16 +241,20 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
                   );
                 })}
               </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              </table>
+            </div>
+          )}
+        </div>
+      ) : null}
 
       {mode === "view" && selectedUser ? (
         <div className="management-card">
           <div className="management-section-header">
             <div><h2>รายละเอียดผู้ใช้งาน</h2><p>{selectedUser.email}</p></div>
-            <Link href={`/dashboard/users?mode=edit&id=${selectedUser.id}`}>แก้ไขข้อมูล</Link>
+            <div className="user-detail-actions">
+              <Link href="/dashboard/users">กลับไปรายชื่อ</Link>
+              <Link href={`/dashboard/users?mode=edit&id=${selectedUser.id}`}>แก้ไขข้อมูล</Link>
+            </div>
           </div>
           <UserProfile user={selectedUser} isCurrentUser={selectedUser.id === currentUserId} />
         </div>
@@ -264,6 +264,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
         <div className="management-card">
           <div className="management-section-header">
             <div><h2>แก้ไขข้อมูลผู้ใช้งาน</h2><p>{selectedUser.fullname}</p></div>
+            <Link href="/dashboard/users">กลับไปรายชื่อ</Link>
           </div>
           <UserForm user={selectedUser} isCurrentUser={selectedUser.id === currentUserId} />
         </div>

@@ -319,6 +319,7 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
   const resolvedSearchParams = await searchParams;
   const mode = resolvedSearchParams?.mode;
   const selectedId = resolvedSearchParams?.id;
+  const showStudentList = mode !== "add" && mode !== "view" && mode !== "edit";
   const roleLabel = session.user.role === "admin" ? "ผู้ดูแลระบบ" : "ครูที่ปรึกษา";
   const advisorEmail = String(session.user.email || "").trim().toLowerCase();
   const studentRecords = session.user.role === "admin"
@@ -342,8 +343,11 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
           </p>
         </div>
 
-        <Link className="management-primary-link" href="/dashboard/student?mode=add">
-          เพิ่มผู้เรียน
+        <Link
+          className="management-primary-link"
+          href={showStudentList ? "/dashboard/student?mode=add" : "/dashboard/student"}
+        >
+          {showStudentList ? "เพิ่มผู้เรียน" : "กลับไปรายชื่อ"}
         </Link>
       </div>
 
@@ -373,19 +377,20 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
         </div>
       </div>
 
-      <div className="management-card">
-        <div className="management-section-header">
-          <div>
-            <h2>ข้อมูลผู้เรียนทั้งหมด</h2>
-            <p>{students.length} รายการ</p>
+      {showStudentList ? (
+        <div className="management-card">
+          <div className="management-section-header">
+            <div>
+              <h2>รายชื่อผู้เรียน</h2>
+              <p>{students.length} รายการ</p>
+            </div>
           </div>
-        </div>
 
-        {students.length === 0 ? (
-          <p className="empty-state">ยังไม่มีข้อมูลผู้เรียน</p>
-        ) : (
-          <div className="student-table-wrap">
-            <table className="student-table">
+          {students.length === 0 ? (
+            <p className="empty-state">ยังไม่มีข้อมูลผู้เรียน</p>
+          ) : (
+            <div className="student-table-wrap">
+              <table className="student-table">
               <thead>
                 <tr>
                   <th>รหัส</th>
@@ -437,10 +442,11 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
                   );
                 })}
               </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              </table>
+            </div>
+          )}
+        </div>
+      ) : null}
 
       {mode === "add" ? (
         <div className="management-card">
@@ -449,6 +455,7 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
               <h2>เพิ่มข้อมูลผู้เรียน</h2>
               <p>กรอกข้อมูลพื้นฐานของผู้เรียน</p>
             </div>
+            <Link href="/dashboard/student">กลับไปรายชื่อ</Link>
           </div>
 
           <StudentForm
@@ -464,11 +471,13 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
           <div className="management-section-header">
             <div>
               <h2>รายละเอียดผู้เรียน</h2>
-              <p>แสดงข้อมูลคล้ายหน้า Profile</p>
             </div>
-            <Link href={`/dashboard/student?mode=edit&id=${selectedStudent.id}`}>
-              แก้ไขข้อมูล
-            </Link>
+            <div className="user-detail-actions">
+              <Link href="/dashboard/student">กลับไปรายชื่อ</Link>
+              <Link href={`/dashboard/student?mode=edit&id=${selectedStudent.id}`}>
+                แก้ไขข้อมูล
+              </Link>
+            </div>
           </div>
 
           <StudentProfile student={selectedStudent} />
@@ -482,6 +491,7 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
               <h2>แก้ไขข้อมูลผู้เรียน</h2>
               <p>{selectedStudent.fullname}</p>
             </div>
+            <Link href="/dashboard/student">กลับไปรายชื่อ</Link>
           </div>
 
           <StudentForm
