@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { UserRepository } from "@/repositories/user.repository";
-import { isUserRole } from "@/lib/roles";
 
 type RegisterData = {
   fullname: FormDataEntryValue | null;
@@ -21,7 +20,7 @@ export class AuthService {
     const fullname = String(data.fullname || "").trim();
     const email = String(data.email || "").trim().toLowerCase();
     const password = String(data.password || "");
-    const role = String(data.role || "student");
+    const role = "student";
 
     if (!fullname || !email || !password) {
       return {
@@ -34,13 +33,6 @@ export class AuthService {
       return {
         ok: false,
         message: "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร"
-      };
-    }
-
-    if (!isUserRole(role)) {
-      return {
-        ok: false,
-        message: "บทบาทผู้ใช้ไม่ถูกต้อง"
       };
     }
 

@@ -57,24 +57,10 @@ export default function RegisterForm(){
           required
         />
 
-        <label htmlFor="role">สิทธิ์การใช้งาน</label>
-        <select id="role" name="role" defaultValue="student">
-          <option value="admin">
-            ผู้ดูแลระบบ
-          </option>
-
-          <option value="teacher">
-            ครูที่ปรึกษา
-          </option>
-
-          <option value="student">
-            ผู้เรียน
-          </option>
-
-          <option value="committee">
-            คณะกรรมการ
-          </option>
-        </select>
+        <input type="hidden" name="role" value="student" />
+        <p className="register-role-note">
+          บัญชีใหม่จะเริ่มต้นด้วยสิทธิ์ผู้เรียน ผู้ดูแลระบบสามารถเปลี่ยนสิทธิ์ภายหลังได้
+        </p>
 
         {state.message ? (
           <p

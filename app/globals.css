@@ -238,6 +238,17 @@ h2{
   text-align: center;
 }
 
+.register-role-note {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-left: 4px solid #facc15;
+  border-radius: 6px;
+  background: #fffbea;
+  color: #785b00;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .page {
   max-width: 1200px;
   margin: auto;
@@ -981,6 +992,96 @@ h2{
 .referral-remove-button:disabled {
   cursor: not-allowed;
   opacity: 0.45;
+}
+
+.user-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.user-summary-grid article {
+  padding: 20px;
+  border: 1px solid #dbe4f0;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 8px 24px rgba(15, 76, 189, 0.08);
+}
+
+.user-summary-grid span,
+.user-summary-grid strong,
+.user-name-cell strong,
+.user-name-cell small {
+  display: block;
+}
+
+.user-summary-grid span {
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.user-summary-grid strong {
+  margin-top: 6px;
+  color: #0b1f3a;
+  font-size: 30px;
+}
+
+.user-table {
+  min-width: 920px;
+}
+
+.user-name-cell small {
+  margin-top: 3px;
+  color: #0f4cbd;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.user-role-badge,
+.user-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.user-role-badge {
+  background: #eaf2ff;
+  color: #0f4cbd;
+}
+
+.user-status-active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.user-status-inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.table-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.user-safety-note {
+  margin: 0;
+  padding: 12px 14px;
+  border-left: 4px solid #facc15;
+  border-radius: 6px;
+  background: #fffbea;
+  color: #785b00;
+  line-height: 1.6;
+}
+
+.user-profile-grid article:last-child {
+  background: #f8fbff;
 }
 
 .home-page {
@@ -2013,6 +2114,10 @@ h2{
   .home-callout-actions,
   .home-callout-actions a {
     width: 100%;
+  }
+
+  .user-summary-grid {
+    grid-template-columns: 1fr;
   }
 
   .public-hero,
