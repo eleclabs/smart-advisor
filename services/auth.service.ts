@@ -20,7 +20,7 @@ export class AuthService {
     const fullname = String(data.fullname || "").trim();
     const email = String(data.email || "").trim().toLowerCase();
     const password = String(data.password || "");
-    const role = "student";
+    const role = String(data.role || "student");
 
     if (!fullname || !email || !password) {
       return {
@@ -33,6 +33,13 @@ export class AuthService {
       return {
         ok: false,
         message: "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร"
+      };
+    }
+
+    if (role !== "student" && role !== "teacher") {
+      return {
+        ok: false,
+        message: "สามารถสมัครได้เฉพาะผู้เรียนหรือครูที่ปรึกษา"
       };
     }
 

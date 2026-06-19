@@ -57,9 +57,13 @@ export default function RegisterForm(){
           required
         />
 
-        <input type="hidden" name="role" value="student" />
+        <label htmlFor="role">สิทธิ์การใช้งาน</label>
+        <select id="role" name="role" defaultValue="student" required>
+          <option value="student">ผู้เรียน</option>
+          <option value="teacher">ครูที่ปรึกษา</option>
+        </select>
         <p className="register-role-note">
-          บัญชีใหม่จะเริ่มต้นด้วยสิทธิ์ผู้เรียน ผู้ดูแลระบบสามารถเปลี่ยนสิทธิ์ภายหลังได้
+          สมัครได้เฉพาะสิทธิ์ผู้เรียนหรือครูที่ปรึกษา ผู้ดูแลระบบสามารถปรับสิทธิ์ภายหลังได้
         </p>
 
         {state.message ? (
