@@ -41,6 +41,11 @@ export const roleDashboards: Record<UserRole, RoleDashboard> = {
         value: "จัดทำและติดตามแผนดูแลช่วยเหลือผู้เรียน",
         href: "/dashboard/intervention"
       },
+      {
+        label: "การส่งต่อผู้เรียน",
+        value: "บันทึกการประสานงานและติดตามผลการส่งต่อผู้เรียน",
+        href: "/dashboard/referral"
+      },
       { label: "จัดการข้อมูลสาขาวิชา", value: "กำหนดและปรับปรุงข้อมูลสาขาวิชา" },
       { label: "จัดการข้อมูลระดับชั้น", value: "กำหนดระดับชั้นและโครงสร้างชั้นเรียน" }
     ]
@@ -70,7 +75,11 @@ export const roleDashboards: Record<UserRole, RoleDashboard> = {
         value: "ติดตามปัญหาและกำหนดแนวทางช่วยเหลือผู้เรียน",
         href: "/dashboard/intervention"
       },
-      { label: "การส่งต่อผู้เรียน", value: "ส่งต่อข้อมูลผู้เรียนไปยังผู้เกี่ยวข้องเพื่อดูแลต่อเนื่อง" }
+      {
+        label: "การส่งต่อผู้เรียน",
+        value: "ส่งต่อข้อมูลผู้เรียนไปยังผู้เกี่ยวข้องเพื่อดูแลต่อเนื่อง",
+        href: "/dashboard/referral"
+      }
     ]
   },
   student: {
