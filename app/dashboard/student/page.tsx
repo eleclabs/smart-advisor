@@ -1,0 +1,501 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import {
+  createMajorAction,
+  createStudentAction,
+  deleteStudentAction,
+  updateStudentAction
+} from "@/actions/student.action";
+import { auth } from "@/lib/auth";
+import { CLASS_LEVEL_OPTIONS } from "@/lib/student-options";
+import { MajorRepository } from "@/repositories/major.repository";
+import { StudentRepository } from "@/repositories/student.repository";
+
+type StudentView = {
+  id: string;
+  studentCode: string;
+  fullname: string;
+  classLevel: string;
+  room: string;
+  major: string;
+  phone: string;
+  gender: string;
+  birthDate: string;
+  weight: string;
+  height: string;
+  bloodType: string;
+  religion: string;
+  guardianName: string;
+  address: string;
+  note: string;
+  advisorEmail: string;
+};
+
+type StudentDocument = {
+  _id: unknown;
+  studentCode?: string;
+  fullname?: string;
+  classLevel?: string;
+  room?: string;
+  major?: string;
+  phone?: string;
+  gender?: string;
+  birthDate?: string;
+  weight?: string;
+  height?: string;
+  bloodType?: string;
+  religion?: string;
+  guardianName?: string;
+  address?: string;
+  note?: string;
+  advisorEmail?: string;
+};
+
+type MajorView = {
+  id: string;
+  name: string;
+};
+
+type MajorDocument = {
+  _id: unknown;
+  name?: string;
+};
+
+type StudentPageProps = {
+  searchParams?: Promise<{
+    mode?: string;
+    id?: string;
+  }>;
+};
+
+function toStudentView(student: StudentDocument): StudentView {
+  return {
+    id: String(student._id),
+    studentCode: student.studentCode || "",
+    fullname: student.fullname || "",
+    classLevel: student.classLevel || "",
+    room: student.room || "",
+    major: student.major || "",
+    phone: student.phone || "",
+    gender: student.gender || "",
+    birthDate: student.birthDate || "",
+    weight: student.weight || "",
+    height: student.height || "",
+    bloodType: student.bloodType || "",
+    religion: student.religion || "",
+    guardianName: student.guardianName || "",
+    address: student.address || "",
+    note: student.note || "",
+    advisorEmail: student.advisorEmail || ""
+  };
+}
+
+function toMajorView(major: MajorDocument): MajorView {
+  return {
+    id: String(major._id),
+    name: major.name || ""
+  };
+}
+
+function StudentForm({
+  action,
+  buttonLabel,
+  majors,
+  student
+}: {
+  action: (formData: FormData) => void | Promise<void>;
+  buttonLabel: string;
+  majors: MajorView[];
+  student?: StudentView;
+}) {
+  return (
+    <form className="management-form" action={action}>
+      <div className="form-grid">
+        <label>
+          รหัสผู้เรียน
+          <input name="studentCode" required defaultValue={student?.studentCode} />
+        </label>
+
+        <label>
+          ชื่อ-สกุล
+          <input name="fullname" required defaultValue={student?.fullname} />
+        </label>
+
+        <label>
+          ระดับชั้น
+          <select name="classLevel" required defaultValue={student?.classLevel || ""}>
+            <option value="" disabled>เลือกระดับชั้น</option>
+            {CLASS_LEVEL_OPTIONS.map((classLevel) => (
+              <option key={classLevel} value={classLevel}>
+                {classLevel}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label>
+          ห้อง
+          <input name="room" defaultValue={student?.room} placeholder="เช่น 1, 2, 3" />
+        </label>
+
+        <label>
+          สาขา
+          <select name="major" required defaultValue={student?.major || ""}>
+            <option value="" disabled>
+              {majors.length > 0 ? "เลือกสาขา" : "กรุณาเพิ่มสาขาก่อน"}
+            </option>
+            {majors.map((major) => (
+              <option key={major.id} value={major.name}>
+                {major.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label>
+          เพศ
+          <select name="gender" defaultValue={student?.gender || ""}>
+            <option value="">ไม่ระบุ</option>
+            <option value="ชาย">ชาย</option>
+            <option value="หญิง">หญิง</option>
+            <option value="อื่นๆ">อื่นๆ</option>
+          </select>
+        </label>
+
+        <label>
+          วันเดือนปีเกิด
+          <input type="date" name="birthDate" defaultValue={student?.birthDate} />
+        </label>
+
+        <label>
+          น้ำหนัก
+          <input name="weight" inputMode="decimal" defaultValue={student?.weight} />
+        </label>
+
+        <label>
+          ส่วนสูง
+          <input name="height" inputMode="decimal" defaultValue={student?.height} />
+        </label>
+
+        <label>
+          หมู่เลือด
+          <select name="bloodType" defaultValue={student?.bloodType || ""}>
+            <option value="">ไม่ระบุ</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="AB">AB</option>
+            <option value="O">O</option>
+          </select>
+        </label>
+
+        <label>
+          ศาสนา
+          <input name="religion" defaultValue={student?.religion} />
+        </label>
+
+        <label>
+          เบอร์โทรศัพท์
+          <input name="phone" defaultValue={student?.phone} />
+        </label>
+
+        <label>
+          ผู้ปกครอง
+          <input name="guardianName" defaultValue={student?.guardianName} />
+        </label>
+      </div>
+
+      <label>
+        ที่อยู่
+        <textarea name="address" rows={3} defaultValue={student?.address} />
+      </label>
+
+      <label>
+        หมายเหตุ
+        <textarea name="note" rows={3} defaultValue={student?.note} />
+      </label>
+
+      <button className="management-primary-button" type="submit">
+        {buttonLabel}
+      </button>
+    </form>
+  );
+}
+
+function StudentProfile({ student }: { student: StudentView }) {
+  const physicalInfo = [
+    student.weight ? `${student.weight} กก.` : "-",
+    student.height ? `${student.height} ซม.` : "-"
+  ].join(" / ");
+  const classInfo = student.room
+    ? `${student.classLevel} ห้อง ${student.room}`
+    : student.classLevel;
+
+  return (
+    <div className="student-profile">
+      <div className="student-profile-header">
+        <div>
+          <span>{student.studentCode}</span>
+          <h2>{student.fullname}</h2>
+          <p>{classInfo} / {student.major}</p>
+        </div>
+      </div>
+
+      <div className="student-profile-grid">
+        <article>
+          <span>ระดับชั้น</span>
+          <strong>{student.classLevel || "-"}</strong>
+        </article>
+
+        <article>
+          <span>ห้อง</span>
+          <strong>{student.room || "-"}</strong>
+        </article>
+
+        <article>
+          <span>สาขา</span>
+          <strong>{student.major || "-"}</strong>
+        </article>
+
+        <article>
+          <span>เพศ</span>
+          <strong>{student.gender || "-"}</strong>
+        </article>
+
+        <article>
+          <span>วันเดือนปีเกิด</span>
+          <strong>{student.birthDate || "-"}</strong>
+        </article>
+
+        <article>
+          <span>น้ำหนัก / ส่วนสูง</span>
+          <strong>{physicalInfo}</strong>
+        </article>
+
+        <article>
+          <span>หมู่เลือด</span>
+          <strong>{student.bloodType || "-"}</strong>
+        </article>
+
+        <article>
+          <span>ศาสนา</span>
+          <strong>{student.religion || "-"}</strong>
+        </article>
+
+        <article>
+          <span>เบอร์โทรศัพท์</span>
+          <strong>{student.phone || "-"}</strong>
+        </article>
+
+        <article>
+          <span>ผู้ปกครอง</span>
+          <strong>{student.guardianName || "-"}</strong>
+        </article>
+
+        <article>
+          <span>ที่อยู่</span>
+          <strong>{student.address || "-"}</strong>
+        </article>
+
+        <article>
+          <span>หมายเหตุ</span>
+          <strong>{student.note || "-"}</strong>
+        </article>
+      </div>
+    </div>
+  );
+}
+
+export default async function StudentPage({ searchParams }: StudentPageProps) {
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect("/login");
+  }
+
+  if (session.user.role !== "teacher" && session.user.role !== "admin") {
+    redirect("/dashboard");
+  }
+
+  const resolvedSearchParams = await searchParams;
+  const mode = resolvedSearchParams?.mode;
+  const selectedId = resolvedSearchParams?.id;
+  const roleLabel = session.user.role === "admin" ? "ผู้ดูแลระบบ" : "ครูที่ปรึกษา";
+  const advisorEmail = String(session.user.email || "").trim().toLowerCase();
+  const studentRecords = session.user.role === "admin"
+    ? await StudentRepository.findAll()
+    : await StudentRepository.findByAdvisor(advisorEmail);
+  const majorRecords = session.user.role === "admin"
+    ? await MajorRepository.findAll()
+    : await MajorRepository.findByAdvisor(advisorEmail);
+  const students = (studentRecords as StudentDocument[]).map(toStudentView);
+  const majors = (majorRecords as MajorDocument[]).map(toMajorView);
+  const selectedStudent = students.find((student) => student.id === selectedId);
+
+  return (
+    <section className="management-content">
+      <div className="management-header">
+        <div>
+          <p className="dashboard-eyebrow">{roleLabel}</p>
+          <h1>การรู้จักผู้เรียนเป็นรายบุคคล</h1>
+          <p className="dashboard-description">
+            ดูรายชื่อผู้เรียนก่อน แล้วเลือกเพิ่ม ดู แก้ไข หรือลบข้อมูลผู้เรียน
+          </p>
+        </div>
+
+        <Link className="management-primary-link" href="/dashboard/student?mode=add">
+          เพิ่มผู้เรียน
+        </Link>
+      </div>
+
+      <div className="management-card">
+        <div className="management-section-header">
+          <div>
+            <h2>สาขา</h2>
+            <p>เพิ่มสาขาเพื่อใช้เป็นตัวเลือกตอนกรอกข้อมูลผู้เรียน</p>
+          </div>
+        </div>
+
+        <form className="major-form" action={createMajorAction}>
+          <input name="name" required placeholder="เช่น เทคโนโลยีสารสนเทศ" />
+          <button className="management-primary-button" type="submit">
+            เพิ่มสาขา
+          </button>
+        </form>
+
+        <div className="major-list">
+          {majors.length === 0 ? (
+            <span>ยังไม่มีสาขา</span>
+          ) : (
+            majors.map((major) => (
+              <span key={major.id}>{major.name}</span>
+            ))
+          )}
+        </div>
+      </div>
+
+      <div className="management-card">
+        <div className="management-section-header">
+          <div>
+            <h2>ข้อมูลผู้เรียนทั้งหมด</h2>
+            <p>{students.length} รายการ</p>
+          </div>
+        </div>
+
+        {students.length === 0 ? (
+          <p className="empty-state">ยังไม่มีข้อมูลผู้เรียน</p>
+        ) : (
+          <div className="student-table-wrap">
+            <table className="student-table">
+              <thead>
+                <tr>
+                  <th>รหัส</th>
+                  <th>ชื่อ-สกุล</th>
+                  <th>ระดับชั้น</th>
+                  <th>ห้อง</th>
+                  <th>สาขา</th>
+                  <th>เพศ</th>
+                  <th>เบอร์โทรศัพท์</th>
+                  <th>จัดการ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {students.map((student) => {
+                  const deleteAction = deleteStudentAction.bind(null, student.id);
+
+                  return (
+                    <tr key={student.id}>
+                      <td>{student.studentCode}</td>
+                      <td>
+                        <Link
+                          className="student-name-link"
+                          href={`/dashboard/student?mode=view&id=${student.id}`}
+                        >
+                          {student.fullname}
+                        </Link>
+                      </td>
+                      <td>{student.classLevel}</td>
+                      <td>{student.room || "-"}</td>
+                      <td>{student.major}</td>
+                      <td>{student.gender || "-"}</td>
+                      <td>{student.phone || "-"}</td>
+                      <td>
+                        <div className="table-actions">
+                          <Link href={`/dashboard/student?mode=view&id=${student.id}`}>
+                            ดู
+                          </Link>
+                          <Link href={`/dashboard/student?mode=edit&id=${student.id}`}>
+                            แก้ไข
+                          </Link>
+                          <form action={deleteAction}>
+                            <button type="submit">
+                              ลบ
+                            </button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {mode === "add" ? (
+        <div className="management-card">
+          <div className="management-section-header">
+            <div>
+              <h2>เพิ่มข้อมูลผู้เรียน</h2>
+              <p>กรอกข้อมูลพื้นฐานของผู้เรียน</p>
+            </div>
+          </div>
+
+          <StudentForm
+            action={createStudentAction}
+            buttonLabel="เพิ่มข้อมูลผู้เรียน"
+            majors={majors}
+          />
+        </div>
+      ) : null}
+
+      {mode === "view" && selectedStudent ? (
+        <div className="management-card">
+          <div className="management-section-header">
+            <div>
+              <h2>รายละเอียดผู้เรียน</h2>
+              <p>แสดงข้อมูลคล้ายหน้า Profile</p>
+            </div>
+            <Link href={`/dashboard/student?mode=edit&id=${selectedStudent.id}`}>
+              แก้ไขข้อมูล
+            </Link>
+          </div>
+
+          <StudentProfile student={selectedStudent} />
+        </div>
+      ) : null}
+
+      {mode === "edit" && selectedStudent ? (
+        <div className="management-card">
+          <div className="management-section-header">
+            <div>
+              <h2>แก้ไขข้อมูลผู้เรียน</h2>
+              <p>{selectedStudent.fullname}</p>
+            </div>
+          </div>
+
+          <StudentForm
+            action={updateStudentAction.bind(null, selectedStudent.id)}
+            buttonLabel="บันทึกการแก้ไข"
+            majors={majors}
+            student={selectedStudent}
+          />
+        </div>
+      ) : null}
+
+      {(mode === "view" || mode === "edit") && selectedId && !selectedStudent ? (
+        <p className="empty-state">ไม่พบข้อมูลผู้เรียนที่เลือก</p>
+      ) : null}
+    </section>
+  );
+}
