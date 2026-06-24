@@ -11,6 +11,13 @@ const UserSchema = new mongoose.Schema({
     default: "teacher",
     required: true
   },
+  roles: {
+    type: [{
+      type: String,
+      enum: [...USER_ROLES]
+    }],
+    default: undefined
+  },
   active: {
     type: Boolean,
     default: true

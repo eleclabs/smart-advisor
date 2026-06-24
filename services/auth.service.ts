@@ -1,13 +1,13 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import { isUserRole } from "@/lib/roles";
+import { isUserRole, type UserRole } from "@/lib/roles";
 import { UserRepository } from "@/repositories/user.repository";
 
 type RegisterData = {
   fullname: FormDataEntryValue | null;
   email: FormDataEntryValue | null;
   password: FormDataEntryValue | null;
-  role: FormDataEntryValue | null;
+  roles: FormDataEntryValue[];
 };
 
 type CredentialsData = {
@@ -18,11 +18,25 @@ type CredentialsData = {
 
 export class AuthService {
 
+  static getUserRoles(user: { role?: unknown; roles?: unknown }): UserRole[] {
+    const roles = Array.isArray(user.roles)
+      ? user.roles.map(String).filter(isUserRole)
+      : [];
+    const legacyRole = String(user.role || "");
+
+    if (roles.length === 0 && isUserRole(legacyRole)) {
+      return [legacyRole];
+    }
+
+    return Array.from(new Set(roles));
+  }
+
   static async register(data: RegisterData) {
     const fullname = String(data.fullname || "").trim();
     const email = String(data.email || "").trim().toLowerCase();
     const password = String(data.password || "");
-    const role = String(data.role || "teacher");
+    const requestedRoles = data.roles.map(String).filter(isUserRole);
+    const rolesToRegister = Array.from(new Set(requestedRoles));
 
     if (!fullname || !email || !password) {
       return {
@@ -38,7 +52,7 @@ export class AuthService {
       };
     }
 
-    if (!isUserRole(role)) {
+    if (rolesToRegister.length === 0) {
       return {
         ok: false,
         message: "สามารถสมัครได้เฉพาะครูที่ปรึกษา หัวหน้างานครูที่ปรึกษา หรือผู้บริหาร"
@@ -51,9 +65,30 @@ export class AuthService {
       );
 
     if (exist) {
+      const validPassword = exist.password
+        ? await bcrypt.compare(password, exist.password)
+        : false;
+
+      if (!validPassword) {
+        return {
+          ok: false,
+          message: "อีเมลนี้มีบัญชีอยู่แล้ว กรุณาใช้รหัสผ่านเดิมเพื่อเพิ่มบทบาท"
+        };
+      }
+
+      const roles = this.getUserRoles(exist);
+      const newRoles = rolesToRegister.filter((role) => !roles.includes(role));
+      if (newRoles.length === 0) {
+        return {
+          ok: false,
+          message: "บัญชีนี้มีบทบาทที่เลือกอยู่แล้ว"
+        };
+      }
+
+      await UserRepository.setRoles(email, [...roles, ...newRoles]);
       return {
-        ok: false,
-        message: "อีเมลนี้ถูกใช้งานแล้ว"
+        ok: true,
+        message: "เพิ่มบทบาทให้บัญชีเดิมสำเร็จ"
       };
     }
 
@@ -67,7 +102,8 @@ export class AuthService {
 
       fullname,
       email,
-      role,
+      role: rolesToRegister[0],
+      roles: rolesToRegister,
 
       password: hash
 
@@ -107,14 +143,15 @@ export class AuthService {
       };
     }
 
-    if (!isUserRole(String(user.role))) {
+    const roles = this.getUserRoles(user);
+    if (roles.length === 0) {
       return {
         ok: false,
         message: "บัญชีนี้ไม่มีสิทธิ์เข้าใช้งานระบบ"
       };
     }
 
-    if (requestedRole && requestedRole !== user.role) {
+    if (!isUserRole(requestedRole) || !roles.includes(requestedRole)) {
       return {
         ok: false,
         message: "บทบาทที่เลือกไม่ตรงกับบัญชีผู้ใช้งาน"
@@ -134,6 +171,9 @@ export class AuthService {
       ok: true,
       message: "เข้าสู่ระบบสำเร็จ",
       user
+      ,
+      role: requestedRole,
+      roles
     };
   }
 

@@ -1,7 +1,10 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { AuthService } from "@/services/auth.service";
-import { signIn, signOut } from "@/lib/auth";
+import { auth, signIn, signOut, unstable_update } from "@/lib/auth";
+import { isUserRole } from "@/lib/roles";
+import { UserRepository } from "@/repositories/user.repository";
 
 export type AuthActionState = {
   status: "idle" | "success" | "error";
@@ -39,7 +42,7 @@ export async function registerAction(
     fullname: formData.get("fullname"),
     email: formData.get("email"),
     password: formData.get("password"),
-    role: formData.get("role")
+    roles: formData.getAll("roles")
   });
 
   if (!result.ok) {
@@ -48,7 +51,7 @@ export async function registerAction(
 
   return {
     status: "success",
-    message: "สมัครสมาชิกสำเร็จ กรุณาเข้าสู่ระบบ"
+    message: result.message
   };
 }
 
@@ -111,4 +114,33 @@ export async function logoutAction() {
   await signOut({
     redirectTo: "/login"
   });
+}
+
+export async function switchRoleAction(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.email) {
+    redirect("/login");
+  }
+
+  const role = String(formData.get("role") || "");
+  if (!isUserRole(role)) {
+    throw new Error("Invalid user role.");
+  }
+
+  const user = await UserRepository.findByEmail(
+    session.user.email.trim().toLowerCase()
+  );
+  const roles = user ? AuthService.getUserRoles(user) : [];
+
+  if (!roles.includes(role)) {
+    throw new Error("บัญชีนี้ไม่มีสิทธิ์ใช้งานบทบาทที่เลือก");
+  }
+
+  await unstable_update({
+    user: {
+      role
+    }
+  });
+
+  redirect("/dashboard");
 }

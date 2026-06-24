@@ -45,7 +45,7 @@ export default function LoginForm() {
           <option value="admin">ผู้บริหาร</option>
         </select>
         <p className="register-role-note">
-          เลือกบทบาทให้ตรงกับบัญชีผู้ใช้งานของคุณ
+          เลือกบทบาทที่ต้องการเข้าใช้งาน และสามารถสลับบทบาทภายหลังจาก Navbar
         </p>
 
         {state.message ? (

@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { logoutAction } from "@/actions/auth.action";
+import { logoutAction, switchRoleAction } from "@/actions/auth.action";
 import { isUserRole, ROLE_LABELS } from "@/lib/roles";
 
 type NavbarUser = {
   name: string;
   role: string;
+  roles: string[];
 };
 
 type NavbarClientProps = {
@@ -61,6 +62,25 @@ export default function NavbarClient({ user }: NavbarClientProps) {
                   {user?.name} ({roleLabel})
                 </Link>
               </li>
+
+              {user && user.roles.length > 1 ? (
+                <li>
+                  <form action={switchRoleAction} className="nav-role-switcher">
+                    <select
+                      defaultValue={user.role}
+                      id="navbar-role"
+                      name="role"
+                    >
+                      {user.roles.filter(isUserRole).map((role) => (
+                        <option key={role} value={role}>
+                          {ROLE_LABELS[role]}
+                        </option>
+                      ))}
+                    </select>
+                    <button type="submit">เปลี่ยน</button>
+                  </form>
+                </li>
+              ) : null}
 
               <li>
                 <form action={logoutAction}>

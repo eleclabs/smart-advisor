@@ -11,6 +11,7 @@ type UserView = {
   fullname: string;
   email: string;
   role: UserRole;
+  roles: UserRole[];
   active: boolean;
   profileImageUrl: string;
   profileImagePublicId: string;
@@ -22,6 +23,7 @@ type UserDocument = {
   fullname?: string;
   email?: string;
   role?: string;
+  roles?: string[];
   active?: boolean;
   profileImageUrl?: string;
   profileImagePublicId?: string;
@@ -38,12 +40,17 @@ type UsersPageProps = {
 
 function toUserView(user: UserDocument): UserView {
   const role = String(user.role || "teacher");
+  const roles = (user.roles || []).filter(isUserRole);
+  const effectiveRoles = roles.length
+    ? roles
+    : [isUserRole(role) ? role : "teacher"];
 
   return {
     id: String(user._id),
     fullname: user.fullname || "",
     email: user.email || "",
-    role: isUserRole(role) ? role : "teacher",
+    role: effectiveRoles[0],
+    roles: effectiveRoles,
     active: user.active !== false,
     profileImageUrl: user.profileImageUrl || "",
     profileImagePublicId: user.profileImagePublicId || "",
@@ -70,7 +77,10 @@ function UserProfile({ user, isCurrentUser }: { user: UserView; isCurrentUser: b
       <div className="student-profile-grid user-profile-grid">
       <article><span>ชื่อ-นามสกุล</span><strong>{user.fullname || "-"}</strong></article>
       <article><span>อีเมล</span><strong>{user.email || "-"}</strong></article>
-      <article><span>สิทธิ์การใช้งาน</span><strong>{ROLE_LABELS[user.role]}</strong></article>
+      <article>
+        <span>สิทธิ์การใช้งาน</span>
+        <strong>{user.roles.map((role) => ROLE_LABELS[role]).join(", ")}</strong>
+      </article>
       <article><span>สถานะบัญชี</span><strong>{user.active ? "เปิดใช้งาน" : "ปิดใช้งาน"}</strong></article>
       <article><span>วันที่สมัคร</span><strong>{formatDate(user.createdAt)}</strong></article>
       <article><span>ประเภทบัญชี</span><strong>{isCurrentUser ? "บัญชีของคุณ" : "ผู้ใช้งานระบบ"}</strong></article>
@@ -134,12 +144,15 @@ function UserForm({
 
         {isCurrentUser ? (
           <>
-            <input type="hidden" name="role" value={user.role} />
+            {user.roles.map((role) => (
+              <input key={role} type="hidden" name="roles" value={role} />
+            ))}
             <label>
               สิทธิ์การใช้งาน
-              <select disabled defaultValue={user.role}>
-                <option value={user.role}>{ROLE_LABELS[user.role]}</option>
-              </select>
+              <input
+                disabled
+                value={user.roles.map((role) => ROLE_LABELS[role]).join(", ")}
+              />
             </label>
             <input type="hidden" name="active" value="true" />
             <label>
@@ -153,11 +166,19 @@ function UserForm({
           <>
             <label>
               สิทธิ์การใช้งาน
-              <select name="role" required defaultValue={user.role}>
+              <span className="user-role-options">
                 {USER_ROLES.map((role) => (
-                  <option key={role} value={role}>{ROLE_LABELS[role]}</option>
+                  <label key={role}>
+                    <input
+                      defaultChecked={user.roles.includes(role)}
+                      name="roles"
+                      type="checkbox"
+                      value={role}
+                    />
+                    {ROLE_LABELS[role]}
+                  </label>
                 ))}
-              </select>
+              </span>
             </label>
             <label>
               สถานะบัญชี
@@ -208,7 +229,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
   }
   const currentUserId = String(session.user.id || "");
   const activeCount = users.filter((user) => user.active).length;
-  const adminCount = users.filter((user) => user.role === "admin").length;
+  const adminCount = users.filter((user) => user.roles.includes("admin")).length;
 
   return (
     <section className="management-content">
@@ -264,7 +285,15 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
                         </div>
                       </td>
                       <td>{user.email}</td>
-                      <td><span className="user-role-badge">{ROLE_LABELS[user.role]}</span></td>
+                      <td>
+                        <div className="user-role-badges">
+                          {user.roles.map((role) => (
+                            <span className="user-role-badge" key={role}>
+                              {ROLE_LABELS[role]}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
                       <td>
                         <span className={`user-status user-status-${user.active ? "active" : "inactive"}`}>
                           {user.active ? "เปิดใช้งาน" : "ปิดใช้งาน"}

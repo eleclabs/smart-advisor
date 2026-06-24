@@ -31,9 +31,12 @@ async function requireAdmin() {
 }
 
 function getUserData(formData: FormData): UserManagementData {
-  const role = String(formData.get("role") || "").trim();
+  const roles = formData.getAll("roles")
+    .map(String)
+    .filter(isUserRole);
+  const role = roles[0];
 
-  if (!isUserRole(role)) {
+  if (!role || roles.length === 0) {
     throw new Error("Invalid user role.");
   }
 
@@ -41,6 +44,7 @@ function getUserData(formData: FormData): UserManagementData {
     fullname: String(formData.get("fullname") || "").trim(),
     email: String(formData.get("email") || "").trim().toLowerCase(),
     role,
+    roles,
     active: String(formData.get("active") || "true") === "true"
   };
 }
@@ -61,6 +65,7 @@ export async function updateUserAction(id: string, formData: FormData) {
   const target = await UserRepository.findById(id) as {
     _id: unknown;
     role?: string;
+    roles?: string[];
     profileImageUrl?: string;
     profileImagePublicId?: string;
   } | null;
@@ -70,11 +75,12 @@ export async function updateUserAction(id: string, formData: FormData) {
   }
 
   const isCurrentUser = String(admin.id || "") === String(target._id);
-  if (isCurrentUser && (data.role !== "admin" || !data.active)) {
+  const targetRoles = target.roles?.length ? target.roles : [target.role || "teacher"];
+  if (isCurrentUser && (!data.roles.includes("admin") || !data.active)) {
     throw new Error("You cannot remove your own admin access or disable your account.");
   }
 
-  if (target.role === "admin" && data.role !== "admin") {
+  if (targetRoles.includes("admin") && !data.roles.includes("admin")) {
     const adminCount = await UserRepository.countByRole("admin");
     if (adminCount <= 1) {
       throw new Error("The last administrator role cannot be changed.");
@@ -117,6 +123,7 @@ export async function deleteUserAction(id: string) {
 
   const target = await UserRepository.findById(id) as {
     role?: string;
+    roles?: string[];
     profileImagePublicId?: string;
   } | null;
 
@@ -124,7 +131,8 @@ export async function deleteUserAction(id: string) {
     throw new Error("User not found.");
   }
 
-  if (target.role === "admin") {
+  const targetRoles = target.roles?.length ? target.roles : [target.role || "teacher"];
+  if (targetRoles.includes("admin")) {
     const adminCount = await UserRepository.countByRole("admin");
     if (adminCount <= 1) {
       throw new Error("The last administrator cannot be deleted.");

@@ -57,14 +57,23 @@ export default function RegisterForm(){
           required
         />
 
-        <label htmlFor="role">สิทธิ์การใช้งาน</label>
-        <select id="role" name="role" defaultValue="teacher" required>
-          <option value="teacher">ครูที่ปรึกษา</option>
-          <option value="committee">หัวหน้างานครูที่ปรึกษา</option>
-          <option value="admin">ผู้บริหาร</option>
-        </select>
+        <fieldset className="register-role-fieldset">
+          <legend>สิทธิ์การใช้งาน</legend>
+          <label>
+            <input defaultChecked name="roles" type="checkbox" value="teacher" />
+            ครูที่ปรึกษา
+          </label>
+          <label>
+            <input name="roles" type="checkbox" value="committee" />
+            หัวหน้างานครูที่ปรึกษา
+          </label>
+          <label>
+            <input name="roles" type="checkbox" value="admin" />
+            ผู้บริหาร
+          </label>
+        </fieldset>
         <p className="register-role-note">
-          ระบบนี้สำหรับครูที่ปรึกษา หัวหน้างานครูที่ปรึกษา และผู้บริหารเท่านั้น
+          อีเมลเดิมสามารถสมัครเพิ่มบทบาทได้ โดยใช้รหัสผ่านเดิมของบัญชี
         </p>
 
         {state.message ? (

@@ -7,7 +7,8 @@ export const {
   handlers,
   signIn,
   signOut,
-  auth
+  auth,
+  unstable_update
 } = NextAuth({
   session: {
     strategy: "jwt"
@@ -34,7 +35,8 @@ export const {
           id: String(result.user._id),
           name: result.user.fullname,
           email: result.user.email,
-          role: result.user.role
+          role: result.role,
+          roles: result.roles
         };
 
       }
@@ -43,10 +45,19 @@ export const {
 
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.roles = user.roles;
+      }
+
+      if (trigger === "update") {
+        const requestedRole = String(session?.user?.role || "");
+        const roles = Array.isArray(token.roles) ? token.roles : [];
+        if (isUserRole(requestedRole) && roles.includes(requestedRole)) {
+          token.role = requestedRole;
+        }
       }
 
       return token;
@@ -59,6 +70,9 @@ export const {
         session.user.role = isUserRole(role)
           ? role
           : "teacher";
+        session.user.roles = Array.isArray(token.roles)
+          ? token.roles.filter(isUserRole)
+          : [session.user.role];
       }
 
       return session;

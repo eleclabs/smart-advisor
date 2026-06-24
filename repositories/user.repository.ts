@@ -3,12 +3,13 @@ import { connectDB } from "@/lib/mongodb";
 import mongoose from "mongoose";
 
 const SAFE_USER_FIELDS =
-  "fullname email role active profileImageUrl profileImagePublicId createdAt updatedAt";
+  "fullname email role roles active profileImageUrl profileImagePublicId createdAt updatedAt";
 
 export type UserManagementData = {
   fullname: string;
   email: string;
   role: string;
+  roles: string[];
   active: boolean;
   profileImageUrl?: string;
   profileImagePublicId?: string;
@@ -28,6 +29,30 @@ export class UserRepository {
     await connectDB();
 
     return User.create(data);
+  }
+
+  static async addRole(email: string, role: string) {
+    await connectDB();
+    return User.findOneAndUpdate(
+      { email },
+      {
+        $addToSet: { roles: role },
+        $setOnInsert: { role }
+      },
+      { new: true, runValidators: true }
+    );
+  }
+
+  static async setRoles(email: string, roles: string[]) {
+    await connectDB();
+    return User.findOneAndUpdate(
+      { email },
+      {
+        roles,
+        role: roles[0]
+      },
+      { new: true, runValidators: true }
+    );
   }
 
   static async findAll() {
@@ -92,7 +117,13 @@ export class UserRepository {
 
   static async countByRole(role: string) {
     await connectDB();
-    return User.countDocuments({ role });
+    return User.countDocuments({
+      $or: [
+        { roles: role },
+        { roles: { $exists: false }, role },
+        { roles: { $size: 0 }, role }
+      ]
+    });
   }
 
   static async setPasswordResetToken(
