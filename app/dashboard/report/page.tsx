@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import PrintReportButton from "@/components/reports/PrintReportButton";
 import { auth } from "@/lib/auth";
 import { ROLE_LABELS } from "@/lib/roles";
 import { ActivityRepository } from "@/repositories/activity.repository";
@@ -63,35 +64,81 @@ function countBy<T>(items: T[], getLabel: (item: T) => string) {
     .sort((left, right) => right.value - left.value || left.label.localeCompare(right.label, "th"));
 }
 
-function BarChart({ items, emptyText }: { items: ChartItem[]; emptyText: string }) {
+function VerticalBarChart({ items, emptyText }: { items: ChartItem[]; emptyText: string }) {
   const maximum = Math.max(...items.map((item) => item.value), 1);
   if (!items.some((item) => item.value > 0)) {
     return <p className="overview-empty">{emptyText}</p>;
   }
 
   return (
-    <div className="overview-bars">
-      {items.map((item) => (
-        <div className="overview-bar-row" key={item.label}>
-          <div className="overview-bar-label">
-            <span>{item.label}</span>
+    <div className="report-vertical-chart-wrap">
+      <div
+        className="report-vertical-chart"
+        style={{ gridTemplateColumns: `repeat(${items.length}, minmax(74px, 1fr))` }}
+      >
+        {items.map((item) => (
+          <div className="report-vertical-item" key={item.label}>
             <strong>{item.value}</strong>
-          </div>
-          <div
-            aria-label={`${item.label} ${item.value} รายการ`}
-            aria-valuemax={maximum}
-            aria-valuemin={0}
-            aria-valuenow={item.value}
-            className="overview-bar-track"
-            role="progressbar"
-          >
+            <div
+              aria-label={`${item.label} ${item.value} รายการ`}
+              aria-valuemax={maximum}
+              aria-valuemin={0}
+              aria-valuenow={item.value}
+              className="report-vertical-track"
+              role="progressbar"
+            >
+              <span
+                className={`report-vertical-fill overview-bar-${item.tone || "blue"}`}
+                style={{ height: `${Math.max((item.value / maximum) * 100, 4)}%` }}
+              />
+            </div>
             <span
-              className={`overview-bar-fill overview-bar-${item.tone || "blue"}`}
-              style={{ width: `${(item.value / maximum) * 100}%` }}
-            />
+              className="report-vertical-label"
+              title={item.label}
+            >
+              {item.label}
+            </span>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DonutChart({ items, emptyText }: { items: ChartItem[]; emptyText: string }) {
+  const activeItems = items.filter((item) => item.value > 0);
+  const total = activeItems.reduce((sum, item) => sum + item.value, 0);
+  if (!total) return <p className="overview-empty">{emptyText}</p>;
+
+  const colors = ["#0f4cbd", "#16a34a", "#f4b400", "#dc2626", "#7c3aed", "#0891b2"];
+  const segments = activeItems.reduce<string[]>((result, item, index) => {
+    const start = activeItems
+      .slice(0, index)
+      .reduce((sum, previous) => sum + (previous.value / total) * 100, 0);
+    const end = start + (item.value / total) * 100;
+    return [...result, `${colors[index % colors.length]} ${start}% ${end}%`];
+  }, []);
+
+  return (
+    <div className="report-donut-layout">
+      <div
+        aria-label={`รวม ${total} รายการ`}
+        className="report-donut"
+        role="img"
+        style={{ background: `conic-gradient(${segments.join(", ")})` }}
+      >
+        <div><strong>{total}</strong><span>รวมทั้งหมด</span></div>
+      </div>
+      <div className="report-donut-legend">
+        {activeItems.map((item, index) => (
+          <div key={item.label}>
+            <span style={{ background: colors[index % colors.length] }} />
+            <p>{item.label}</p>
+            <strong>{item.value}</strong>
+            <small>{Math.round((item.value / total) * 100)}%</small>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -255,18 +302,22 @@ export default async function ReportPage() {
         <article><span>การติดตามหลังส่งต่อ</span><strong>{totalFollowUps}</strong><small>ครั้ง</small></article>
       </div>
 
-      <section className="report-section">
+      <section className="report-section" data-report-section="student-summary">
         <div className="report-section-heading">
           <div><span>ส่วนที่ 1</span><h2>ข้อมูลสรุปผู้เรียน แยกตามชั้นปีและสาขาวิชา</h2></div>
+          <PrintReportButton
+            section="student-summary"
+            title="รายงานสรุปผู้เรียนตามชั้นปีและสาขาวิชา"
+          />
         </div>
         <div className="report-chart-grid">
           <article className="overview-panel">
             <div className="overview-panel-heading"><div><span>ชั้นปี</span><h2>จำนวนผู้เรียนตามชั้นปี</h2></div></div>
-            <BarChart items={classSummary} emptyText="ยังไม่มีข้อมูลผู้เรียน" />
+            <VerticalBarChart items={classSummary} emptyText="ยังไม่มีข้อมูลผู้เรียน" />
           </article>
           <article className="overview-panel">
             <div className="overview-panel-heading"><div><span>สาขาวิชา</span><h2>จำนวนผู้เรียนตามสาขาวิชา</h2></div></div>
-            <BarChart items={majorSummary} emptyText="ยังไม่มีข้อมูลผู้เรียน" />
+            <DonutChart items={majorSummary} emptyText="ยังไม่มีข้อมูลผู้เรียน" />
           </article>
         </div>
         <div className="student-table-wrap report-table-wrap">
@@ -286,12 +337,16 @@ export default async function ReportPage() {
         </div>
       </section>
 
-      <section className="report-section">
+      <section className="report-section" data-report-section="system-domains">
         <div className="report-section-heading">
           <div><span>ส่วนที่ 2</span><h2>ข้อมูลที่มีอยู่ในระบบแต่ละด้าน</h2></div>
+          <PrintReportButton
+            section="system-domains"
+            title="รายงานสรุปข้อมูลในระบบแต่ละด้าน"
+          />
         </div>
         <article className="overview-panel">
-          <BarChart items={domainChart} emptyText="ยังไม่มีข้อมูลการดำเนินงาน" />
+          <VerticalBarChart items={domainChart} emptyText="ยังไม่มีข้อมูลการดำเนินงาน" />
         </article>
         <div className="student-table-wrap report-table-wrap">
           <table className="overview-table report-table">
@@ -305,22 +360,26 @@ export default async function ReportPage() {
         </div>
       </section>
 
-      <section className="report-section">
+      <section className="report-section" data-report-section="follow-up-results">
         <div className="report-section-heading">
           <div><span>ส่วนที่ 3</span><h2>ผลการติดตามการช่วยเหลือผู้เรียน</h2></div>
+          <PrintReportButton
+            section="follow-up-results"
+            title="รายงานผลการติดตามการช่วยเหลือผู้เรียน"
+          />
         </div>
         <div className="report-chart-grid report-chart-grid-three">
           <article className="overview-panel">
             <div className="overview-panel-heading"><div><span>คัดกรอง</span><h2>ผลสรุปกลุ่มผู้เรียน</h2></div></div>
-            <BarChart items={screeningStatuses} emptyText="ยังไม่มีผลการคัดกรอง" />
+            <DonutChart items={screeningStatuses} emptyText="ยังไม่มีผลการคัดกรอง" />
           </article>
           <article className="overview-panel">
             <div className="overview-panel-heading"><div><span>ช่วยเหลือ</span><h2>ผลการป้องกันและแก้ไขปัญหา</h2></div></div>
-            <BarChart items={interventionStatuses} emptyText="ยังไม่มีผลการช่วยเหลือ" />
+            <DonutChart items={interventionStatuses} emptyText="ยังไม่มีผลการช่วยเหลือ" />
           </article>
           <article className="overview-panel">
             <div className="overview-panel-heading"><div><span>ส่งต่อ</span><h2>สถานะการส่งต่อผู้เรียน</h2></div></div>
-            <BarChart items={referralStatuses} emptyText="ยังไม่มีผลการส่งต่อ" />
+            <DonutChart items={referralStatuses} emptyText="ยังไม่มีผลการส่งต่อ" />
           </article>
         </div>
         <div className="student-table-wrap report-table-wrap">
