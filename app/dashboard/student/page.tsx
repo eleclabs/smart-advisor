@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import {
   createMajorAction,
@@ -28,6 +29,8 @@ type StudentView = {
   guardianName: string;
   address: string;
   note: string;
+  profileImageUrl: string;
+  profileImagePublicId: string;
   advisorEmail: string;
 };
 
@@ -48,6 +51,8 @@ type StudentDocument = {
   guardianName?: string;
   address?: string;
   note?: string;
+  profileImageUrl?: string;
+  profileImagePublicId?: string;
   advisorEmail?: string;
 };
 
@@ -86,6 +91,8 @@ function toStudentView(student: StudentDocument): StudentView {
     guardianName: student.guardianName || "",
     address: student.address || "",
     note: student.note || "",
+    profileImageUrl: student.profileImageUrl || "",
+    profileImagePublicId: student.profileImagePublicId || "",
     advisorEmail: student.advisorEmail || ""
   };
 }
@@ -110,6 +117,24 @@ function StudentForm({
 }) {
   return (
     <form className="management-form" action={action}>
+      <div className="profile-editor">
+        <StudentProfileImage name={student?.fullname || "ผู้เรียน"} url={student?.profileImageUrl || ""} />
+        <label>
+          รูปโปรไฟล์ผู้เรียน
+          <input
+            accept=".jpg,.jpeg,.png,.gif,.webp,image/*"
+            name="profileImage"
+            type="file"
+          />
+          <small>รูปจะถูกย่อและบีบอัดเป็น WebP ก่อนจัดเก็บบน Cloudinary</small>
+        </label>
+        {student?.profileImageUrl ? (
+          <label className="profile-remove-option">
+            <input name="removeProfileImage" type="checkbox" value="true" />
+            ลบรูปโปรไฟล์ปัจจุบัน
+          </label>
+        ) : null}
+      </div>
       <div className="form-grid">
         <label>
           รหัสผู้เรียน
@@ -154,11 +179,13 @@ function StudentForm({
 
         <label>
           เพศ
-          <select name="gender" defaultValue={student?.gender || ""}>
-            <option value="">ไม่ระบุ</option>
+          <select
+            name="gender"
+            defaultValue={student?.gender === "หญิง" ? "หญิง" : "ชาย"}
+            required
+          >
             <option value="ชาย">ชาย</option>
             <option value="หญิง">หญิง</option>
-            <option value="อื่นๆ">อื่นๆ</option>
           </select>
         </label>
 
@@ -221,6 +248,22 @@ function StudentForm({
   );
 }
 
+function StudentProfileImage({ name, url }: { name: string; url: string }) {
+  return url ? (
+    <Image
+      alt={`รูปโปรไฟล์ ${name}`}
+      className="profile-image"
+      height={160}
+      src={url}
+      width={160}
+    />
+  ) : (
+    <div className="profile-image profile-image-placeholder">
+      {name.trim().charAt(0) || "S"}
+    </div>
+  );
+}
+
 function StudentProfile({ student }: { student: StudentView }) {
   const physicalInfo = [
     student.weight ? `${student.weight} กก.` : "-",
@@ -233,6 +276,7 @@ function StudentProfile({ student }: { student: StudentView }) {
   return (
     <div className="student-profile">
       <div className="student-profile-header">
+        <StudentProfileImage name={student.fullname} url={student.profileImageUrl} />
         <div>
           <span>{student.studentCode}</span>
           <h2>{student.fullname}</h2>
@@ -415,6 +459,7 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
                           className="student-name-link"
                           href={`/dashboard/student?mode=view&id=${student.id}`}
                         >
+                          <StudentProfileImage name={student.fullname} url={student.profileImageUrl} />
                           {student.fullname}
                         </Link>
                       </td>

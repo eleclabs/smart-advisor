@@ -48,6 +48,11 @@ export const roleDashboards: Record<UserRole, RoleDashboard> = {
         label: "การส่งต่อผู้เรียน",
         value: "บันทึกการประสานงานและติดตามผลการส่งต่อผู้เรียน",
         href: "/dashboard/referral"
+      },
+      {
+        label: "การรายงานผล",
+        value: "ดูกราฟและตารางสรุปข้อมูลการดูแลช่วยเหลือผู้เรียนทั้งระบบ",
+        href: "/dashboard/report"
       }
     ]
   },
@@ -80,6 +85,11 @@ export const roleDashboards: Record<UserRole, RoleDashboard> = {
         label: "การส่งต่อผู้เรียน",
         value: "ส่งต่อข้อมูลผู้เรียนไปยังผู้เกี่ยวข้องเพื่อดูแลต่อเนื่อง",
         href: "/dashboard/referral"
+      },
+      {
+        label: "การรายงานผล",
+        value: "ดูกราฟและตารางสรุปข้อมูลผู้เรียนในความดูแล",
+        href: "/dashboard/report"
       }
     ]
   },
@@ -90,7 +100,11 @@ export const roleDashboards: Record<UserRole, RoleDashboard> = {
     items: [
       { label: "การอนุมัติ", value: "ตรวจสอบคำร้องที่รอการอนุมัติ" },
       { label: "ภาพรวมการให้คำปรึกษา", value: "ติดตามการดำเนินงานให้คำปรึกษา" },
-      { label: "รายงานสรุป", value: "ดูรายงานสรุปผลการดำเนินงาน" }
+      {
+        label: "การรายงานผล",
+        value: "ดูกราฟและตารางสรุปผลการดำเนินงานทั้งระบบ",
+        href: "/dashboard/report"
+      }
     ]
   }
 };

@@ -18,10 +18,12 @@ export type ScreeningData = {
   housingType: string;
   housingOther: string;
   commuteMethods: string[];
+  commuteOther: string;
   learningBehavior: string;
   health: string;
   familyIncome: string;
   assistanceNeeds: string[];
+  assistanceOther: string;
   advisorSummary: string;
   advisorSummaryOther: string;
   assistanceApproach: string;

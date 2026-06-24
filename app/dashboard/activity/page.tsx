@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import {
   createActivityAction,
@@ -23,8 +24,19 @@ type ActivityView = {
   activityResults: string;
   problems: string;
   followUpStudents: string;
-  supportingDocuments: string;
+  attachments: ActivityAttachmentView[];
   suggestions: string;
+};
+
+type ActivityAttachmentView = {
+  fileId: string;
+  name: string;
+  contentType: string;
+  size: number;
+  publicId: string;
+  url: string;
+  resourceType: "image" | "raw";
+  kind: "document" | "image";
 };
 
 type ActivityDocument = Partial<Omit<ActivityView, "id">> & {
@@ -56,9 +68,96 @@ function toActivityView(activity: ActivityDocument): ActivityView {
     activityResults: activity.activityResults || "",
     problems: activity.problems || "",
     followUpStudents: activity.followUpStudents || "",
-    supportingDocuments: activity.supportingDocuments || "",
+    attachments: activity.attachments || [],
     suggestions: activity.suggestions || ""
   };
+}
+
+function formatFileSize(size: number) {
+  if (size < 1024 * 1024) return `${Math.ceil(size / 1024)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function DetailItem({ label, value }: { label: string; value: string }) {
+  return (
+    <article>
+      <span>{label}</span>
+      <strong>{value || "-"}</strong>
+    </article>
+  );
+}
+
+function ActivityDetail({ activity }: { activity: ActivityView }) {
+  const documents = activity.attachments.filter((file) => file.kind === "document");
+  const images = activity.attachments.filter((file) => file.kind === "image");
+
+  return (
+    <div className="activity-detail">
+      <div className="student-profile-grid activity-detail-summary">
+        <DetailItem label="ระดับชั้น" value={activity.classLevel} />
+        <DetailItem label="สาขา" value={activity.major} />
+        <DetailItem label="สัปดาห์ที่" value={activity.weekNumber} />
+        <DetailItem label="ระยะเวลา" value={activity.duration} />
+      </div>
+
+      <div className="activity-detail-sections">
+        <DetailItem label="หัวข้อเรื่อง" value={activity.topic} />
+        <DetailItem label="วัตถุประสงค์" value={activity.objectives} />
+        <DetailItem label="ขั้นตอนการดำเนินกิจกรรม" value={activity.activitySteps} />
+        <DetailItem label="การประเมินผลกิจกรรม" value={activity.evaluation} />
+        <DetailItem label="ผลการจัดกิจกรรม" value={activity.activityResults} />
+        <DetailItem label="ปัญหา/อุปสรรคที่พบ" value={activity.problems} />
+        <DetailItem label="ผู้เรียนที่ต้องติดตามเป็นพิเศษ" value={activity.followUpStudents} />
+        <DetailItem label="ข้อเสนอแนะ" value={activity.suggestions} />
+      </div>
+
+      <section className="activity-attachments">
+        <h3>ไฟล์ประกอบกิจกรรม</h3>
+        {documents.length === 0 ? (
+          <p className="empty-state">ไม่มีไฟล์เอกสารประกอบกิจกรรม</p>
+        ) : (
+          <div className="activity-document-list">
+            {documents.map((file) => (
+              <a
+                href={file.url || `/api/activities/${activity.id}/files/${file.fileId}`}
+                key={file.fileId}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <strong>{file.name}</strong>
+                <span>{formatFileSize(file.size)} · เปิดหรือดาวน์โหลด</span>
+              </a>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="activity-attachments">
+        <h3>ภาพประกอบกิจกรรม</h3>
+        {images.length === 0 ? (
+          <p className="empty-state">ไม่มีภาพประกอบกิจกรรม</p>
+        ) : (
+          <div className="activity-image-grid">
+            {images.map((file) => {
+              const src = file.url || `/api/activities/${activity.id}/files/${file.fileId}`;
+              return (
+                <a href={src} key={file.fileId} target="_blank" rel="noreferrer">
+                  <Image
+                    alt={file.name}
+                    height={360}
+                    src={src}
+                    unoptimized
+                    width={640}
+                  />
+                  <span>{file.name}</span>
+                </a>
+              );
+            })}
+          </div>
+        )}
+      </section>
+    </div>
+  );
 }
 
 function ActivityForm({
@@ -178,14 +277,40 @@ function ActivityForm({
             <textarea name="followUpStudents" rows={3} defaultValue={activity?.followUpStudents} />
           </label>
           <label>
-            เอกสารประกอบกิจกรรม
-            <textarea
-              name="supportingDocuments"
-              rows={3}
-              placeholder="ชื่อไฟล์ ลิงก์ หรือรายละเอียดเอกสาร"
-              defaultValue={activity?.supportingDocuments}
+            แนบไฟล์ประกอบกิจกรรม
+            <input
+              accept=".doc,.docx,.pdf,.xls,.xlsx"
+              multiple
+              name="documentFiles"
+              type="file"
             />
+            <small>รองรับ DOC, DOCX, PDF, XLS, XLSX ขนาดไม่เกิน 4 MB ต่อไฟล์</small>
           </label>
+          <label>
+            แนบภาพประกอบกิจกรรม
+            <input
+              accept=".jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp"
+              multiple
+              name="imageFiles"
+              type="file"
+            />
+            <small>รองรับ JPG, PNG, GIF, WEBP ขนาดไม่เกิน 4 MB ต่อภาพ</small>
+          </label>
+          {activity?.attachments.length ? (
+            <div className="activity-existing-files activity-notes-wide">
+              <strong>ไฟล์ที่แนบไว้</strong>
+              {activity.attachments.map((file) => (
+                <label key={file.fileId}>
+                  <input
+                    name="removeAttachmentIds"
+                    type="checkbox"
+                    value={file.fileId}
+                  />
+                  ลบ {file.name}
+                </label>
+              ))}
+            </div>
+          ) : null}
           <label className="activity-notes-wide">
             ข้อเสนอแนะ
             <textarea name="suggestions" rows={3} defaultValue={activity?.suggestions} />
@@ -292,6 +417,9 @@ export default async function ActivityPage({ searchParams }: ActivityPageProps) 
                       <td>{activity.duration}</td>
                       <td>
                         <div className="table-actions">
+                          <Link href={`/dashboard/activity?mode=view&id=${activity.id}`}>
+                            ดูรายละเอียด
+                          </Link>
                           <Link href={`/dashboard/activity?mode=edit&id=${activity.id}`}>
                             แก้ไข
                           </Link>
@@ -325,6 +453,24 @@ export default async function ActivityPage({ searchParams }: ActivityPageProps) 
         </div>
       ) : null}
 
+      {mode === "view" && selectedActivity ? (
+        <div className="management-card">
+          <div className="management-section-header">
+            <div>
+              <h2>รายละเอียดกิจกรรม</h2>
+              <p>{selectedActivity.topic}</p>
+            </div>
+            <div className="table-actions">
+              <Link href={`/dashboard/activity?mode=edit&id=${selectedActivity.id}`}>
+                แก้ไข
+              </Link>
+              <Link href="/dashboard/activity">กลับไปรายการ</Link>
+            </div>
+          </div>
+          <ActivityDetail activity={selectedActivity} />
+        </div>
+      ) : null}
+
       {mode === "edit" && selectedActivity ? (
         <div className="management-card">
           <div className="management-section-header">
@@ -342,7 +488,7 @@ export default async function ActivityPage({ searchParams }: ActivityPageProps) 
         </div>
       ) : null}
 
-      {mode === "edit" && selectedId && !selectedActivity ? (
+      {(mode === "edit" || mode === "view") && selectedId && !selectedActivity ? (
         <p className="empty-state">ไม่พบกิจกรรมหรือไม่มีสิทธิ์เข้าถึงข้อมูลนี้</p>
       ) : null}
     </section>

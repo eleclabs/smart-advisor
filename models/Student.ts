@@ -31,6 +31,8 @@ const StudentSchema = new mongoose.Schema({
   },
   gender: {
     type: String,
+    enum: ["ชาย", "หญิง"],
+    required: true,
     trim: true
   },
   birthDate: {
@@ -62,6 +64,14 @@ const StudentSchema = new mongoose.Schema({
     trim: true
   },
   note: {
+    type: String,
+    trim: true
+  },
+  profileImageUrl: {
+    type: String,
+    trim: true
+  },
+  profileImagePublicId: {
     type: String,
     trim: true
   },

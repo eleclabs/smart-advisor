@@ -15,6 +15,8 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  profileImageUrl: { type: String, trim: true },
+  profileImagePublicId: { type: String, trim: true },
   passwordResetToken: String,
   passwordResetExpires: Date
 },{

@@ -5,7 +5,12 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { CLASS_LEVEL_OPTIONS } from "@/lib/student-options";
 import {
+  deleteCloudinaryAsset,
+  uploadToCloudinary
+} from "@/lib/cloudinary";
+import {
   ActivityRepository,
+  type ActivityAttachmentData,
   type ActivityData
 } from "@/repositories/activity.repository";
 
@@ -29,9 +34,41 @@ function value(formData: FormData, name: string) {
   return String(formData.get(name) || "").trim();
 }
 
+async function getAttachments(formData: FormData): Promise<ActivityAttachmentData[]> {
+  const documentFiles = formData.getAll("documentFiles");
+  const imageFiles = formData.getAll("imageFiles");
+  const attachments: ActivityAttachmentData[] = [];
+  for (const [kind, entries] of [
+    ["document", documentFiles],
+    ["image", imageFiles]
+  ] as const) {
+    for (const entry of entries) {
+      if (!(entry instanceof File) || entry.size === 0) continue;
+      const uploaded = await uploadToCloudinary(entry, {
+        folder: `smart-advisor/activities/${kind === "image" ? "images" : "documents"}`,
+        kind
+      });
+      if (!uploaded) continue;
+      attachments.push({
+        fileId: uploaded.publicId,
+        name: uploaded.originalName,
+        contentType: entry.type || "application/octet-stream",
+        size: uploaded.bytes,
+        publicId: uploaded.publicId,
+        url: uploaded.url,
+        resourceType: uploaded.resourceType,
+        kind,
+      });
+    }
+  }
+
+  return attachments;
+}
+
 function getActivityData(
   formData: FormData,
-  advisorEmail: string
+  advisorEmail: string,
+  attachments: ActivityAttachmentData[]
 ): ActivityData {
   return {
     classLevel: value(formData, "classLevel"),
@@ -45,7 +82,7 @@ function getActivityData(
     activityResults: value(formData, "activityResults"),
     problems: value(formData, "problems"),
     followUpStudents: value(formData, "followUpStudents"),
-    supportingDocuments: value(formData, "supportingDocuments"),
+    attachments,
     suggestions: value(formData, "suggestions"),
     advisorEmail
   };
@@ -70,7 +107,8 @@ function assertRequiredFields(data: ActivityData) {
 export async function createActivityAction(formData: FormData) {
   const user = await requireTeacherOrAdmin();
   const advisorEmail = String(user.email || "").trim().toLowerCase();
-  const data = getActivityData(formData, advisorEmail);
+  const attachments = await getAttachments(formData);
+  const data = getActivityData(formData, advisorEmail, attachments);
 
   assertRequiredFields(data);
   await ActivityRepository.create(data);
@@ -84,7 +122,29 @@ export async function updateActivityAction(
 ) {
   const user = await requireTeacherOrAdmin();
   const advisorEmail = String(user.email || "").trim().toLowerCase();
-  const data = getActivityData(formData, advisorEmail);
+  const current = user.role === "admin"
+    ? await ActivityRepository.findById(id)
+    : await ActivityRepository.findByIdForAdvisor(id, advisorEmail);
+
+  if (!current) {
+    throw new Error("ไม่พบกิจกรรมหรือไม่มีสิทธิ์เข้าถึงข้อมูลนี้");
+  }
+
+  const existingAttachments =
+    ((current as { attachments?: ActivityAttachmentData[] }).attachments || []);
+  const removedIds = new Set(
+    formData.getAll("removeAttachmentIds").map((item) => String(item))
+  );
+  const removedAttachments = existingAttachments.filter(
+    (attachment) => removedIds.has(attachment.fileId)
+  );
+  const keptAttachments = existingAttachments.filter(
+    (attachment) => !removedIds.has(attachment.fileId)
+  );
+  const newAttachments = await getAttachments(formData);
+  const attachments = [...keptAttachments, ...newAttachments];
+
+  const data = getActivityData(formData, advisorEmail, attachments);
 
   assertRequiredFields(data);
 
@@ -100,6 +160,12 @@ export async function updateActivityAction(
     );
   }
 
+  await Promise.all(
+    removedAttachments.map((attachment) =>
+      deleteCloudinaryAsset(attachment.publicId, attachment.resourceType)
+    )
+  );
+
   revalidatePath(ACTIVITY_PATH);
   redirect(ACTIVITY_PATH);
 }
@@ -107,6 +173,12 @@ export async function updateActivityAction(
 export async function deleteActivityAction(id: string) {
   const user = await requireTeacherOrAdmin();
   const advisorEmail = String(user.email || "").trim().toLowerCase();
+
+  const activity = user.role === "admin"
+    ? await ActivityRepository.findById(id)
+    : await ActivityRepository.findByIdForAdvisor(id, advisorEmail);
+  const attachments =
+    ((activity as { attachments?: ActivityAttachmentData[] } | null)?.attachments || []);
 
   if (user.role === "admin") {
     await ActivityRepository.deleteById(id);
@@ -116,6 +188,12 @@ export async function deleteActivityAction(id: string) {
       advisorEmail
     );
   }
+
+  await Promise.all(
+    attachments.map((attachment) =>
+      deleteCloudinaryAsset(attachment.publicId, attachment.resourceType)
+    )
+  );
 
   revalidatePath(ACTIVITY_PATH);
   redirect(ACTIVITY_PATH);

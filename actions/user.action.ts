@@ -5,6 +5,11 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { isUserRole } from "@/lib/roles";
 import {
+  deleteCloudinaryAsset,
+  fileFromFormData,
+  uploadToCloudinary
+} from "@/lib/cloudinary";
+import {
   UserRepository,
   type UserManagementData
 } from "@/repositories/user.repository";
@@ -56,6 +61,8 @@ export async function updateUserAction(id: string, formData: FormData) {
   const target = await UserRepository.findById(id) as {
     _id: unknown;
     role?: string;
+    profileImageUrl?: string;
+    profileImagePublicId?: string;
   } | null;
 
   if (!target) {
@@ -75,7 +82,28 @@ export async function updateUserAction(id: string, formData: FormData) {
   }
 
   assertUserData(data);
-  await UserRepository.updateById(id, data);
+  const profileImage = await uploadToCloudinary(
+    fileFromFormData(formData, "profileImage"),
+    {
+      folder: "smart-advisor/profiles/users",
+      kind: "image",
+      profile: true
+    }
+  );
+  const removeProfileImage = formData.get("removeProfileImage") === "true";
+  const updateData: UserManagementData = {
+    ...data,
+    profileImageUrl: profileImage?.url ||
+      (removeProfileImage ? "" : target.profileImageUrl),
+    profileImagePublicId: profileImage?.publicId ||
+      (removeProfileImage ? "" : target.profileImagePublicId)
+  };
+
+  await UserRepository.updateById(id, updateData);
+
+  if ((profileImage || removeProfileImage) && target.profileImagePublicId) {
+    await deleteCloudinaryAsset(target.profileImagePublicId, "image");
+  }
   revalidatePath(USER_PATH);
   redirect(USER_PATH);
 }
@@ -89,6 +117,7 @@ export async function deleteUserAction(id: string) {
 
   const target = await UserRepository.findById(id) as {
     role?: string;
+    profileImagePublicId?: string;
   } | null;
 
   if (!target) {
@@ -103,6 +132,7 @@ export async function deleteUserAction(id: string) {
   }
 
   await UserRepository.deleteById(id);
+  await deleteCloudinaryAsset(target.profileImagePublicId, "image");
   revalidatePath(USER_PATH);
   redirect(USER_PATH);
 }

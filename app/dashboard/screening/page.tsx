@@ -47,10 +47,12 @@ type ScreeningView = {
   housingType: string;
   housingOther: string;
   commuteMethods: string[];
+  commuteOther: string;
   learningBehavior: string;
   health: string;
   familyIncome: string;
   assistanceNeeds: string[];
+  assistanceOther: string;
   advisorSummary: string;
   advisorSummaryOther: string;
   assistanceApproach: string;
@@ -101,10 +103,12 @@ function toScreeningView(record: ScreeningDocument): ScreeningView {
     housingType: record.housingType || "",
     housingOther: record.housingOther || "",
     commuteMethods: record.commuteMethods || [],
+    commuteOther: record.commuteOther || "",
     learningBehavior: record.learningBehavior || "",
     health: record.health || "",
     familyIncome: record.familyIncome || "",
     assistanceNeeds: record.assistanceNeeds || [],
+    assistanceOther: record.assistanceOther || "",
     advisorSummary: record.advisorSummary || "",
     advisorSummaryOther: record.advisorSummaryOther || "",
     assistanceApproach: record.assistanceApproach || ""
@@ -275,7 +279,7 @@ function ScreeningForm({
         <div className="screening-question">
           <strong>การเดินทางมาสถานศึกษา</strong>
           <div className="screening-options">
-            {["รถส่วนตัว", "รถรับส่ง", "รถเมล์/รถสาธารณะ"].map((item) => (
+            {["รถส่วนตัว", "รถรับส่ง", "รถเมล์/รถสาธารณะ", "อื่น"].map((item) => (
               <Choice
                 key={item}
                 type="checkbox"
@@ -285,6 +289,14 @@ function ScreeningForm({
               />
             ))}
           </div>
+          <label>
+            อื่น (ระบุ)
+            <input
+              name="commuteOther"
+              placeholder="ระบุวิธีการเดินทาง"
+              defaultValue={record?.commuteOther}
+            />
+          </label>
         </div>
       </fieldset>
 
@@ -321,7 +333,7 @@ function ScreeningForm({
       <fieldset className="screening-section">
         <legend>6. ความต้องการความช่วยเหลือ</legend>
         <div className="screening-options">
-          {["ทุนการศึกษา", "อุปกรณ์การเรียน", "เครื่องแบบนักเรียน"].map((item) => (
+          {["ทุนการศึกษา", "อุปกรณ์การเรียน", "เครื่องแบบนักเรียน", "อื่นๆ"].map((item) => (
             <Choice
               key={item}
               type="checkbox"
@@ -331,6 +343,14 @@ function ScreeningForm({
             />
           ))}
         </div>
+        <label>
+          อื่นๆ (ระบุ)
+          <input
+            name="assistanceOther"
+            placeholder="ระบุความช่วยเหลือที่ต้องการ"
+            defaultValue={record?.assistanceOther}
+          />
+        </label>
       </fieldset>
 
       <fieldset className="screening-section">

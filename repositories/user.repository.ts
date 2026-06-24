@@ -2,13 +2,16 @@ import User from "@/models/User";
 import { connectDB } from "@/lib/mongodb";
 import mongoose from "mongoose";
 
-const SAFE_USER_FIELDS = "fullname email role active createdAt updatedAt";
+const SAFE_USER_FIELDS =
+  "fullname email role active profileImageUrl profileImagePublicId createdAt updatedAt";
 
 export type UserManagementData = {
   fullname: string;
   email: string;
   role: string;
   active: boolean;
+  profileImageUrl?: string;
+  profileImagePublicId?: string;
 };
 
 export class UserRepository {

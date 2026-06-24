@@ -18,6 +18,8 @@ export type StudentData = {
   guardianName: string;
   address: string;
   note: string;
+  profileImageUrl?: string;
+  profileImagePublicId?: string;
   advisorEmail: string;
 };
 

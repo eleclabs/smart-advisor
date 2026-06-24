@@ -53,7 +53,7 @@ export default function NavbarClient({ user }: NavbarClientProps) {
           {isLoggedIn ? (
             <>
               <li>
-                <Link href="/dashboard">ระบบงาน</Link>
+                <Link href="/dashboard">Dashboard</Link>
               </li>
 
               <li>

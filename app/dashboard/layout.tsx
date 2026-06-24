@@ -34,7 +34,7 @@ export default async function DashboardLayout({
           <nav aria-label="เมนูหน้าหลัก">
             <ul className="dashboard-menu">
               <li>
-                <Link href="/dashboard">ภาพรวม</Link>
+                <Link href="/dashboard">Dashboard</Link>
               </li>
 
               {dashboard.items.map((item) => (

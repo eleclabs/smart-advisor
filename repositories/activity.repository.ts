@@ -1,5 +1,17 @@
 import Activity from "@/models/Activity";
 import { connectDB } from "@/lib/mongodb";
+import mongoose from "mongoose";
+
+export type ActivityAttachmentData = {
+  fileId: string;
+  name: string;
+  contentType: string;
+  size: number;
+  publicId: string;
+  url: string;
+  resourceType: "image" | "raw";
+  kind: "document" | "image";
+};
 
 export type ActivityData = {
   classLevel: string;
@@ -13,7 +25,7 @@ export type ActivityData = {
   activityResults: string;
   problems: string;
   followUpStudents: string;
-  supportingDocuments: string;
+  attachments: ActivityAttachmentData[];
   suggestions: string;
   advisorEmail: string;
 };
@@ -21,14 +33,30 @@ export type ActivityData = {
 export class ActivityRepository {
   static async findAll() {
     await connectDB();
-    return Activity.find().sort({ updatedAt: -1 }).lean();
+    return Activity.find()
+      .select("-attachments.data")
+      .sort({ updatedAt: -1 })
+      .lean();
   }
 
   static async findByAdvisor(advisorEmail: string) {
     await connectDB();
     return Activity.find({ advisorEmail })
+      .select("-attachments.data")
       .sort({ updatedAt: -1 })
       .lean();
+  }
+
+  static async findById(id: string) {
+    await connectDB();
+    if (!mongoose.isValidObjectId(id)) return null;
+    return Activity.findById(id).lean();
+  }
+
+  static async findByIdForAdvisor(id: string, advisorEmail: string) {
+    await connectDB();
+    if (!mongoose.isValidObjectId(id)) return null;
+    return Activity.findOne({ _id: id, advisorEmail }).lean();
   }
 
   static async create(data: ActivityData) {

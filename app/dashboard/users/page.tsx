@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { deleteUserAction, updateUserAction } from "@/actions/user.action";
 import { auth } from "@/lib/auth";
@@ -11,6 +12,8 @@ type UserView = {
   email: string;
   role: UserRole;
   active: boolean;
+  profileImageUrl: string;
+  profileImagePublicId: string;
   createdAt?: Date | string;
 };
 
@@ -20,6 +23,8 @@ type UserDocument = {
   email?: string;
   role?: string;
   active?: boolean;
+  profileImageUrl?: string;
+  profileImagePublicId?: string;
   createdAt?: Date | string;
 };
 
@@ -40,6 +45,8 @@ function toUserView(user: UserDocument): UserView {
     email: user.email || "",
     role: isUserRole(role) ? role : "teacher",
     active: user.active !== false,
+    profileImageUrl: user.profileImageUrl || "",
+    profileImagePublicId: user.profileImagePublicId || "",
     createdAt: user.createdAt
   };
 }
@@ -58,13 +65,32 @@ function formatDate(value?: Date | string) {
 
 function UserProfile({ user, isCurrentUser }: { user: UserView; isCurrentUser: boolean }) {
   return (
-    <div className="student-profile-grid user-profile-grid">
+    <div className="user-profile-detail">
+      <ProfileImage name={user.fullname} url={user.profileImageUrl} />
+      <div className="student-profile-grid user-profile-grid">
       <article><span>ชื่อ-นามสกุล</span><strong>{user.fullname || "-"}</strong></article>
       <article><span>อีเมล</span><strong>{user.email || "-"}</strong></article>
       <article><span>สิทธิ์การใช้งาน</span><strong>{ROLE_LABELS[user.role]}</strong></article>
       <article><span>สถานะบัญชี</span><strong>{user.active ? "เปิดใช้งาน" : "ปิดใช้งาน"}</strong></article>
       <article><span>วันที่สมัคร</span><strong>{formatDate(user.createdAt)}</strong></article>
       <article><span>ประเภทบัญชี</span><strong>{isCurrentUser ? "บัญชีของคุณ" : "ผู้ใช้งานระบบ"}</strong></article>
+      </div>
+    </div>
+  );
+}
+
+function ProfileImage({ name, url }: { name: string; url: string }) {
+  return url ? (
+    <Image
+      alt={`รูปโปรไฟล์ ${name}`}
+      className="profile-image"
+      height={160}
+      src={url}
+      width={160}
+    />
+  ) : (
+    <div className="profile-image profile-image-placeholder">
+      {name.trim().charAt(0) || "U"}
     </div>
   );
 }
@@ -78,6 +104,24 @@ function UserForm({
 }) {
   return (
     <form className="management-form" action={updateUserAction.bind(null, user.id)}>
+      <div className="profile-editor">
+        <ProfileImage name={user.fullname} url={user.profileImageUrl} />
+        <label>
+          รูปโปรไฟล์ผู้ใช้งาน
+          <input
+            accept=".jpg,.jpeg,.png,.gif,.webp,image/*"
+            name="profileImage"
+            type="file"
+          />
+          <small>รูปจะถูกย่อและบีบอัดเป็น WebP ก่อนจัดเก็บบน Cloudinary</small>
+        </label>
+        {user.profileImageUrl ? (
+          <label className="profile-remove-option">
+            <input name="removeProfileImage" type="checkbox" value="true" />
+            ลบรูปโปรไฟล์ปัจจุบัน
+          </label>
+        ) : null}
+      </div>
       <div className="form-grid">
         <label>
           ชื่อ-นามสกุล
@@ -214,6 +258,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
                     <tr key={user.id}>
                       <td>
                         <div className="user-name-cell">
+                          <ProfileImage name={user.fullname} url={user.profileImageUrl} />
                           <strong>{user.fullname || "-"}</strong>
                           {isCurrentUser ? <small>บัญชีของคุณ</small> : null}
                         </div>
