@@ -283,7 +283,7 @@ async function OperationalOverview({
     <>
       <div className="dashboard-header overview-header">
         <div>
-          <p className="dashboard-eyebrow">{isAdmin ? "ผู้ดูแลระบบ" : "ครูที่ปรึกษา"}</p>
+          <p className="dashboard-eyebrow">{isAdmin ? "ผู้บริหาร" : "ครูที่ปรึกษา"}</p>
           <h1>ภาพรวมระบบดูแลผู้เรียน</h1>
           <p className="dashboard-description">
             {isAdmin
@@ -373,8 +373,8 @@ export default async function DashboardPage() {
   const session = await auth();
   const name = session?.user?.name || "ผู้ใช้งาน";
   const email = session?.user?.email || "-";
-  const sessionRole = session?.user?.role || "student";
-  const role = isUserRole(sessionRole) ? sessionRole : "student";
+  const sessionRole = session?.user?.role || "teacher";
+  const role = isUserRole(sessionRole) ? sessionRole : "teacher";
 
   if (role !== "admin" && role !== "teacher") {
     return <RoleDashboard name={name} email={email} role={role} />;

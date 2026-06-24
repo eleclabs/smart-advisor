@@ -9,7 +9,7 @@ export default async function ProfilePage() {
     redirect("/login");
   }
 
-  const sessionRole = session.user.role || "student";
+  const sessionRole = session.user.role || "teacher";
   const roleLabel = isUserRole(sessionRole)
     ? ROLE_LABELS[sessionRole]
     : "ผู้ใช้งาน";

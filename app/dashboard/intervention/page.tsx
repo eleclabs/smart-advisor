@@ -306,7 +306,7 @@ export default async function InterventionPage({ searchParams }: InterventionPag
       <div className="management-header">
         <div>
           <p className="dashboard-eyebrow">
-            {isAdmin ? "ผู้ดูแลระบบ" : "ครูที่ปรึกษา"}
+            {isAdmin ? "ผู้บริหาร" : "ครูที่ปรึกษา"}
           </p>
           <h1>การป้องกันและแก้ปัญหา</h1>
           <p className="dashboard-description">

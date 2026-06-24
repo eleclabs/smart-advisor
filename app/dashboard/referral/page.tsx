@@ -323,7 +323,7 @@ export default async function ReferralPage({ searchParams }: ReferralPageProps) 
     <section className="management-content">
       <div className="management-header">
         <div>
-          <p className="dashboard-eyebrow">{isAdmin ? "ผู้ดูแลระบบ" : "ครูที่ปรึกษา"}</p>
+          <p className="dashboard-eyebrow">{isAdmin ? "ผู้บริหาร" : "ครูที่ปรึกษา"}</p>
           <h1>การส่งต่อผู้เรียน</h1>
           <p className="dashboard-description">
             บันทึกการส่งต่อ การประสานงาน และติดตามผลการช่วยเหลืออย่างต่อเนื่อง

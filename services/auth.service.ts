@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import { isUserRole } from "@/lib/roles";
 import { UserRepository } from "@/repositories/user.repository";
 
 type RegisterData = {
@@ -12,6 +13,7 @@ type RegisterData = {
 type CredentialsData = {
   email: FormDataEntryValue | null;
   password: FormDataEntryValue | null;
+  role?: FormDataEntryValue | null;
 };
 
 export class AuthService {
@@ -20,7 +22,7 @@ export class AuthService {
     const fullname = String(data.fullname || "").trim();
     const email = String(data.email || "").trim().toLowerCase();
     const password = String(data.password || "");
-    const role = String(data.role || "student");
+    const role = String(data.role || "teacher");
 
     if (!fullname || !email || !password) {
       return {
@@ -36,10 +38,10 @@ export class AuthService {
       };
     }
 
-    if (role !== "student" && role !== "teacher") {
+    if (!isUserRole(role)) {
       return {
         ok: false,
-        message: "สามารถสมัครได้เฉพาะผู้เรียนหรือครูที่ปรึกษา"
+        message: "สามารถสมัครได้เฉพาะครูที่ปรึกษา หัวหน้างานครูที่ปรึกษา หรือผู้บริหาร"
       };
     }
 
@@ -80,6 +82,7 @@ export class AuthService {
   static async validateCredentials(data: CredentialsData) {
     const email = String(data.email || "").trim().toLowerCase();
     const password = String(data.password || "");
+    const requestedRole = String(data.role || "").trim();
 
     if (!email || !password) {
       return {
@@ -101,6 +104,20 @@ export class AuthService {
       return {
         ok: false,
         message: "บัญชีนี้ถูกปิดใช้งาน"
+      };
+    }
+
+    if (!isUserRole(String(user.role))) {
+      return {
+        ok: false,
+        message: "บัญชีนี้ไม่มีสิทธิ์เข้าใช้งานระบบ"
+      };
+    }
+
+    if (requestedRole && requestedRole !== user.role) {
+      return {
+        ok: false,
+        message: "บทบาทที่เลือกไม่ตรงกับบัญชีผู้ใช้งาน"
       };
     }
 

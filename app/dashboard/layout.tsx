@@ -18,8 +18,8 @@ export default async function DashboardLayout({
 
   const name = session.user.name || "ผู้ใช้งาน";
   const email = session.user.email || "-";
-  const sessionRole = session.user.role || "student";
-  const role = isUserRole(sessionRole) ? sessionRole : "student";
+  const sessionRole = session.user.role || "teacher";
+  const role = isUserRole(sessionRole) ? sessionRole : "teacher";
   const dashboard = roleDashboards[role];
 
   return (

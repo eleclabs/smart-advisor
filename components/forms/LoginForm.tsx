@@ -38,6 +38,16 @@ export default function LoginForm() {
           required
         />
 
+        <label htmlFor="role">สิทธิ์การใช้งาน</label>
+        <select id="role" name="role" defaultValue="teacher" required>
+          <option value="teacher">ครูที่ปรึกษา</option>
+          <option value="committee">หัวหน้างานครูที่ปรึกษา</option>
+          <option value="admin">ผู้บริหาร</option>
+        </select>
+        <p className="register-role-note">
+          เลือกบทบาทให้ตรงกับบัญชีผู้ใช้งานของคุณ
+        </p>
+
         {state.message ? (
           <p
             className={`auth-message auth-message-${state.status}`}

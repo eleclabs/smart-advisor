@@ -7,11 +7,10 @@ export const metadata: Metadata = {
 };
 
 const careSteps = [
-  "รู้จักผู้เรียน",
-  "คัดกรอง",
-  "ส่งเสริมและพัฒนา",
-  "ป้องกันและแก้ปัญหา",
-  "ส่งต่อและติดตามผล"
+  "การรู้จักผู้เรียนเป็นรายบุคคล",
+  "การคัดกรองผู้เรียน",
+  "การส่งเสริมและพัฒนาผู้เรียน",
+  "การป้องกันและแก้ปัญหาผู้เรียน",
 ];
 
 const highlights = [
@@ -58,10 +57,9 @@ export default function HomePage() {
         <aside className="home-care-card" aria-label="วงจรการดูแลผู้เรียน">
           <div className="home-care-card-header">
             <div>
-              <span>SMART CARE</span>
-              <h2>วงจรการดูแลผู้เรียน</h2>
+              <h2>การดูแลช่วยเหลือผู้เรียน</h2>
             </div>
-            <strong>5</strong>
+            <strong>4</strong>
           </div>
           <ol className="home-care-steps">
             {careSteps.map((step, index) => (

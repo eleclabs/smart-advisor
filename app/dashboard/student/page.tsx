@@ -320,7 +320,7 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
   const mode = resolvedSearchParams?.mode;
   const selectedId = resolvedSearchParams?.id;
   const showStudentList = mode !== "add" && mode !== "view" && mode !== "edit";
-  const roleLabel = session.user.role === "admin" ? "ผู้ดูแลระบบ" : "ครูที่ปรึกษา";
+  const roleLabel = session.user.role === "admin" ? "ผู้บริหาร" : "ครูที่ปรึกษา";
   const advisorEmail = String(session.user.email || "").trim().toLowerCase();
   const studentRecords = session.user.role === "admin"
     ? await StudentRepository.findAll()

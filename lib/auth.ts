@@ -16,12 +16,14 @@ export const {
     Credentials({
       credentials: {
         email: {},
-        password: {}
+        password: {},
+        role: {}
       },
       async authorize(credentials) {
         const result = await AuthService.validateCredentials({
           email: credentials?.email as string,
-          password: credentials?.password as string
+          password: credentials?.password as string,
+          role: credentials?.role as string
         });
 
         if (!result.ok || !result.user) {
@@ -56,7 +58,7 @@ export const {
         session.user.id = String(token.id);
         session.user.role = isUserRole(role)
           ? role
-          : "student";
+          : "teacher";
       }
 
       return session;

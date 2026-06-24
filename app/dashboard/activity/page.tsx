@@ -241,7 +241,7 @@ export default async function ActivityPage({ searchParams }: ActivityPageProps) 
       <div className="management-header">
         <div>
           <p className="dashboard-eyebrow">
-            {isAdmin ? "ผู้ดูแลระบบ" : "ครูที่ปรึกษา"}
+            {isAdmin ? "ผู้บริหาร" : "ครูที่ปรึกษา"}
           </p>
           <h1>การส่งเสริมและพัฒนาผู้เรียน</h1>
           <p className="dashboard-description">

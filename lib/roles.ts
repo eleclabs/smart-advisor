@@ -1,17 +1,15 @@
 export const USER_ROLES = [
   "admin",
   "teacher",
-  "student",
   "committee"
 ] as const;
 
 export type UserRole = (typeof USER_ROLES)[number];
 
 export const ROLE_LABELS: Record<UserRole, string> = {
-  admin: "ผู้ดูแลระบบ",
+  admin: "ผู้บริหาร",
   teacher: "ครูที่ปรึกษา",
-  student: "ผู้เรียน",
-  committee: "คณะกรรมการ"
+  committee: "หัวหน้างานครูที่ปรึกษา"
 };
 
 export function isUserRole(role: string): role is UserRole {

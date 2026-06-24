@@ -15,7 +15,7 @@ export type RoleDashboard = {
 
 export const roleDashboards: Record<UserRole, RoleDashboard> = {
   admin: {
-    title: "หน้าหลักผู้ดูแลระบบ",
+    title: "หน้าหลักผู้บริหาร",
     description: "จัดการข้อมูลหลักของระบบ Smart Advisor",
     menuTitle: "เมนูการจัดการ",
     items: [
@@ -83,24 +83,14 @@ export const roleDashboards: Record<UserRole, RoleDashboard> = {
       }
     ]
   },
-  student: {
-    title: "หน้าหลักผู้เรียน",
-    description: "ดูข้อมูลส่วนตัว ครูที่ปรึกษา และความก้าวหน้าทางการเรียน",
-    menuTitle: "เมนูผู้เรียน",
-    items: [
-      { label: "ครูที่ปรึกษา", value: "ตรวจสอบข้อมูลครูที่ปรึกษา" },
-      { label: "แผนการเรียน", value: "ตรวจสอบความก้าวหน้าทางการเรียน" },
-      { label: "คำร้อง", value: "ส่งคำร้องขอรับคำปรึกษา" }
-    ]
-  },
   committee: {
-    title: "หน้าหลักคณะกรรมการ",
+    title: "หน้าหลักหัวหน้างานครูที่ปรึกษา",
     description: "ตรวจสอบการดำเนินงาน การอนุมัติ และรายงานสรุป",
-    menuTitle: "เมนูคณะกรรมการ",
+    menuTitle: "เมนูหัวหน้างานครูที่ปรึกษา",
     items: [
       { label: "การอนุมัติ", value: "ตรวจสอบคำร้องที่รอการอนุมัติ" },
       { label: "ภาพรวมการให้คำปรึกษา", value: "ติดตามการดำเนินงานให้คำปรึกษา" },
-      { label: "รายงานคณะกรรมการ", value: "ดูรายงานสรุปผลการพิจารณา" }
+      { label: "รายงานสรุป", value: "ดูรายงานสรุปผลการดำเนินงาน" }
     ]
   }
 };

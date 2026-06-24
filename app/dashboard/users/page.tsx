@@ -32,13 +32,13 @@ type UsersPageProps = {
 };
 
 function toUserView(user: UserDocument): UserView {
-  const role = String(user.role || "student");
+  const role = String(user.role || "teacher");
 
   return {
     id: String(user._id),
     fullname: user.fullname || "",
     email: user.email || "",
-    role: isUserRole(role) ? role : "student",
+    role: isUserRole(role) ? role : "teacher",
     active: user.active !== false,
     createdAt: user.createdAt
   };
@@ -170,7 +170,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
     <section className="management-content">
       <div className="management-header">
         <div>
-          <p className="dashboard-eyebrow">ผู้ดูแลระบบ</p>
+          <p className="dashboard-eyebrow">ผู้บริหาร</p>
           <h1>จัดการข้อมูลผู้ใช้งาน</h1>
           <p className="dashboard-description">
             ดู แก้ไขสถานะ เปลี่ยนสิทธิ์การใช้งาน หรือลบบัญชีผู้ใช้ในระบบ
@@ -181,7 +181,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
       <div className="user-summary-grid">
         <article><span>ผู้ใช้ทั้งหมด</span><strong>{users.length}</strong></article>
         <article><span>บัญชีที่ใช้งาน</span><strong>{activeCount}</strong></article>
-        <article><span>ผู้ดูแลระบบ</span><strong>{adminCount}</strong></article>
+        <article><span>ผู้บริหาร</span><strong>{adminCount}</strong></article>
       </div>
 
       {showUserList ? (

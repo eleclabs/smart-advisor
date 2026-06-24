@@ -58,12 +58,13 @@ export default function RegisterForm(){
         />
 
         <label htmlFor="role">สิทธิ์การใช้งาน</label>
-        <select id="role" name="role" defaultValue="student" required>
-          <option value="student">ผู้เรียน</option>
+        <select id="role" name="role" defaultValue="teacher" required>
           <option value="teacher">ครูที่ปรึกษา</option>
+          <option value="committee">หัวหน้างานครูที่ปรึกษา</option>
+          <option value="admin">ผู้บริหาร</option>
         </select>
         <p className="register-role-note">
-          สมัครได้เฉพาะสิทธิ์ผู้เรียนหรือครูที่ปรึกษา ผู้ดูแลระบบสามารถปรับสิทธิ์ภายหลังได้
+          ระบบนี้สำหรับครูที่ปรึกษา หัวหน้างานครูที่ปรึกษา และผู้บริหารเท่านั้น
         </p>
 
         {state.message ? (

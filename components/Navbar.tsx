@@ -10,7 +10,7 @@ export default async function Navbar() {
         session?.user
           ? {
               name: session.user.name || "User",
-              role: session.user.role || "student"
+              role: session.user.role || "teacher"
             }
           : null
       }

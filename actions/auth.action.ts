@@ -59,10 +59,12 @@ export async function loginAction(
   const formData = getFormData(stateOrFormData, actionFormData);
   const email = formData.get("email");
   const password = formData.get("password");
+  const role = formData.get("role");
 
   const result = await AuthService.validateCredentials({
     email,
-    password
+    password,
+    role
   });
 
   if (!result.ok) {
@@ -72,6 +74,7 @@ export async function loginAction(
   await signIn("credentials", {
     email: String(email),
     password: String(password),
+    role: String(role),
     redirectTo: "/dashboard"
   });
 
