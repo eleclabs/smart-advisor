@@ -11,6 +11,7 @@ const careSteps = [
   "การคัดกรองผู้เรียน",
   "การส่งเสริมและพัฒนาผู้เรียน",
   "การป้องกันและแก้ปัญหาผู้เรียน",
+  "การส่งต่อผู้เรียน",
 ];
 
 const highlights = [
@@ -59,7 +60,7 @@ export default function HomePage() {
             <div>
               <h2>การดูแลช่วยเหลือผู้เรียน</h2>
             </div>
-            <strong>4</strong>
+            <strong>5</strong>
           </div>
           <ol className="home-care-steps">
             {careSteps.map((step, index) => (
@@ -108,7 +109,6 @@ export default function HomePage() {
           <article><strong>ครูที่ปรึกษา</strong><span>บันทึกและติดตามการดูแล</span></article>
           <article><strong>ผู้ดูแลระบบ</strong><span>จัดการข้อมูลและดูภาพรวม</span></article>
           <article><strong>คณะกรรมการ</strong><span>ติดตามและใช้ข้อมูลประกอบการพิจารณา</span></article>
-          <article><strong>ผู้เรียน</strong><span>เข้าถึงบริการและการให้คำปรึกษา</span></article>
         </div>
       </div>
 
