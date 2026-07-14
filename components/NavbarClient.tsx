@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { logoutAction, switchRoleAction } from "@/actions/auth.action";
 import { isUserRole, ROLE_LABELS } from "@/lib/roles";
@@ -26,6 +27,7 @@ export default function NavbarClient({ user }: NavbarClientProps) {
     <nav className="navbar">
       <div className="nav-container">
         <Link href="/" className="logo">
+          <Image src="/vea-logo.svg" alt="VEA Logo" width={32} height={32} priority />
           Smart Advisor
         </Link>
 

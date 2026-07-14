@@ -50,6 +50,9 @@ h2{
 }
 
 .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   color: #facc15;
   font-size: 24px;
   font-weight: bold;
