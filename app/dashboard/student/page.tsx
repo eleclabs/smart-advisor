@@ -13,6 +13,7 @@ import { CLASS_LEVEL_OPTIONS } from "@/lib/student-options";
 import { MajorRepository } from "@/repositories/major.repository";
 import StudentImport from "@/components/StudentImport";
 import { StudentRepository } from "@/repositories/student.repository";
+import SchoolSearchInput from "@/components/forms/SchoolSearchInput";
 
 type StudentView = {
   id: string;
@@ -43,6 +44,12 @@ type StudentView = {
   profileImageUrl: string;
   profileImagePublicId: string;
   advisorEmail: string;
+  schoolId?: string;
+  schoolName?: string;
+  schoolProvince?: string;
+  schoolRegion?: string;
+  schoolVocationalOffice?: string;
+  schoolEducationType?: string;
 };
 
 type StudentDocument = {
@@ -74,6 +81,12 @@ type StudentDocument = {
   profileImageUrl?: string;
   profileImagePublicId?: string;
   advisorEmail?: string;
+  schoolId?: string;
+  schoolName?: string;
+  schoolProvince?: string;
+  schoolRegion?: string;
+  schoolVocationalOffice?: string;
+  schoolEducationType?: string;
 };
 
 type MajorView = {
@@ -122,7 +135,13 @@ function toStudentView(student: StudentDocument): StudentView {
     note: student.note || "",
     profileImageUrl: student.profileImageUrl || "",
     profileImagePublicId: student.profileImagePublicId || "",
-    advisorEmail: student.advisorEmail || ""
+    advisorEmail: student.advisorEmail || "",
+    schoolId: student.schoolId ? String(student.schoolId) : "",
+    schoolName: student.schoolName || "",
+    schoolProvince: student.schoolProvince || "",
+    schoolRegion: student.schoolRegion || "",
+    schoolVocationalOffice: student.schoolVocationalOffice || "",
+    schoolEducationType: student.schoolEducationType || ""
   };
 }
 
@@ -150,11 +169,7 @@ function StudentForm({
         <StudentProfileImage name={student?.fullname || "ผู้เรียน"} url={student?.profileImageUrl || ""} />
         <label>
           รูปโปรไฟล์ผู้เรียน
-          <input
-            accept=".jpg,.jpeg,.png,.gif,.webp,image/*"
-            name="profileImage"
-            type="file"
-          />
+          <input accept=".jpg,.jpeg,.png,.gif,.webp,image/*" name="profileImage" type="file" />
           <small>รูปจะถูกย่อและบีบอัดเป็น WebP ก่อนจัดเก็บบน Cloudinary</small>
         </label>
         {student?.profileImageUrl ? (
@@ -164,95 +179,69 @@ function StudentForm({
           </label>
         ) : null}
       </div>
+
       <div className="form-grid">
         <label>
           รหัสผู้เรียน
           <input name="studentCode" required defaultValue={student?.studentCode} />
         </label>
-
         <label>
           เลขประจำตัวประชาชน
           <input name="citizenId" defaultValue={student?.citizenId} />
         </label>
-
         <label>
           คำนำหน้าชื่อ
           <input name="title" defaultValue={student?.title} />
         </label>
-
         <label>
           ชื่อ-สกุล
           <input name="fullname" required defaultValue={student?.fullname} />
         </label>
-
         <label>
           ระดับชั้น
           <select name="classLevel" required defaultValue={student?.classLevel || ""}>
             <option value="" disabled>เลือกระดับชั้น</option>
-            {CLASS_LEVEL_OPTIONS.map((classLevel) => (
-              <option key={classLevel} value={classLevel}>
-                {classLevel}
-              </option>
-            ))}
+            {CLASS_LEVEL_OPTIONS.map((cl) => <option key={cl} value={cl}>{cl}</option>)}
           </select>
         </label>
-
         <label>
           ห้อง
           <input name="room" defaultValue={student?.room} placeholder="เช่น 1, 2, 3" />
         </label>
-
         <label>
           สาขา
           <select name="major" required defaultValue={student?.major || ""}>
-            <option value="" disabled>
-              {majors.length > 0 ? "เลือกสาขา" : "กรุณาเพิ่มสาขาก่อน"}
-            </option>
-            {majors.map((major) => (
-              <option key={major.id} value={major.name}>
-                {major.name}
-              </option>
-            ))}
+            <option value="" disabled>{majors.length > 0 ? "เลือกสาขา" : "กรุณาเพิ่มสาขาก่อน"}</option>
+            {majors.map((m) => <option key={m.id} value={m.name}>{m.name}</option>)}
           </select>
         </label>
-
         <label>
           เพศ
-          <select
-            name="gender"
-            defaultValue={student?.gender === "หญิง" ? "หญิง" : "ชาย"}
-            required
-          >
+          <select name="gender" defaultValue={student?.gender === "หญิง" ? "หญิง" : "ชาย"} required>
             <option value="ชาย">ชาย</option>
             <option value="หญิง">หญิง</option>
           </select>
         </label>
-
         <label>
           ชื่อเล่น
           <input name="nickname" defaultValue={student?.nickname} />
         </label>
-
         <label>
           วันเดือนปีเกิด
           <input type="date" name="birthDate" defaultValue={student?.birthDate} />
         </label>
-
         <label>
           อายุ
           <input name="age" defaultValue={student?.age} />
         </label>
-
         <label>
           น้ำหนัก
           <input name="weight" inputMode="decimal" defaultValue={student?.weight} />
         </label>
-
         <label>
           ส่วนสูง
           <input name="height" inputMode="decimal" defaultValue={student?.height} />
         </label>
-
         <label>
           หมู่เลือด
           <select name="bloodType" defaultValue={student?.bloodType || ""}>
@@ -263,47 +252,52 @@ function StudentForm({
             <option value="O">O</option>
           </select>
         </label>
-
         <label>
           สัญชาติ
           <input name="nationality" defaultValue={student?.nationality} />
         </label>
-
         <label>
           ศาสนา
           <input name="religion" defaultValue={student?.religion} />
         </label>
-
         <label>
           เบอร์โทรศัพท์
           <input name="phone" defaultValue={student?.phone} />
         </label>
-
         <label>
           ผู้ปกครอง
           <input name="guardianName" defaultValue={student?.guardianName} />
         </label>
-
         <label>
           ประเภทนักเรียน
           <input name="studentType" defaultValue={student?.studentType} />
         </label>
-
         <label>
           ประเภทความพิการ
           <input name="disabilityType" defaultValue={student?.disabilityType} />
         </label>
-
         <label>
           ความสามารถพิเศษ
           <input name="specialAbility" defaultValue={student?.specialAbility} />
         </label>
-
         <label>
           โรคประจำตัว
           <input name="chronicDisease" defaultValue={student?.chronicDisease} />
         </label>
       </div>
+
+      <SchoolSearchInput
+        defaultSchoolId={student?.schoolId || ""}
+        defaultSchoolName={student?.schoolName || ""}
+        defaultSchoolProvince={student?.schoolProvince || ""}
+        defaultRegion={student?.schoolRegion || ""}
+        defaultVocationalOffice={student?.schoolVocationalOffice || ""}
+        defaultEducationType={student?.schoolEducationType || ""}
+        regionFieldName="schoolRegion"
+        vocationalOfficeFieldName="schoolVocationalOffice"
+        educationTypeFieldName="schoolEducationType"
+        provinceFieldName="schoolProvince"
+      />
 
       <label>
         ที่อยู่
@@ -507,32 +501,6 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
         </div>
       </div>
 
-      <div className="management-card">
-        <div className="management-section-header">
-          <div>
-            <h2>สาขา</h2>
-            <p>เพิ่มสาขาเพื่อใช้เป็นตัวเลือกตอนกรอกข้อมูลผู้เรียน</p>
-          </div>
-        </div>
-
-        <form className="major-form" action={createMajorAction}>
-          <input name="name" required placeholder="เช่น เทคโนโลยีสารสนเทศ" />
-          <button className="management-primary-button" type="submit">
-            เพิ่มสาขา
-          </button>
-        </form>
-
-        <div className="major-list">
-          {majors.length === 0 ? (
-            <span>ยังไม่มีสาขา</span>
-          ) : (
-            majors.map((major) => (
-              <span key={major.id}>{major.name}</span>
-            ))
-          )}
-        </div>
-      </div>
-
       {showStudentList ? (
         <div className="management-card">
           <div className="management-section-header">
@@ -615,6 +583,20 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
             <Link href="/dashboard/student">กลับไปรายชื่อ</Link>
           </div>
 
+          <div className="management-card" style={{ background: "#f8fafc", boxShadow: "none", border: "1px solid #e2e8f0", marginBottom: 20 }}>
+            <div style={{ marginBottom: 10 }}>
+              <strong style={{ fontSize: 14 }}>เพิ่มสาขาวิชา</strong>
+              <p style={{ margin: "4px 0 10px", fontSize: 13, color: "#64748b" }}>เพิ่มสาขาเพื่อใช้เป็นตัวเลือกในดรอปดาวน์ด้านล่าง</p>
+            </div>
+            <form className="major-form" action={createMajorAction}>
+              <input name="name" required placeholder="เช่น เทคโนโลยีสารสนเทศ" />
+              <button className="management-primary-button" type="submit">เพิ่มสาขา</button>
+            </form>
+            <div className="major-list" style={{ marginTop: 10 }}>
+              {majors.length === 0 ? <span>ยังไม่มีสาขา</span> : majors.map((m) => <span key={m.id}>{m.name}</span>)}
+            </div>
+          </div>
+
           <StudentForm
             action={createStudentAction}
             buttonLabel="เพิ่มข้อมูลผู้เรียน"
@@ -649,6 +631,20 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
               <p>{selectedStudent.fullname}</p>
             </div>
             <Link href="/dashboard/student">กลับไปรายชื่อ</Link>
+          </div>
+
+          <div className="management-card" style={{ background: "#f8fafc", boxShadow: "none", border: "1px solid #e2e8f0", marginBottom: 20 }}>
+            <div style={{ marginBottom: 10 }}>
+              <strong style={{ fontSize: 14 }}>เพิ่มสาขาวิชา</strong>
+              <p style={{ margin: "4px 0 10px", fontSize: 13, color: "#64748b" }}>เพิ่มสาขาเพื่อใช้เป็นตัวเลือกในดรอปดาวน์ด้านล่าง</p>
+            </div>
+            <form className="major-form" action={createMajorAction}>
+              <input name="name" required placeholder="เช่น เทคโนโลยีสารสนเทศ" />
+              <button className="management-primary-button" type="submit">เพิ่มสาขา</button>
+            </form>
+            <div className="major-list" style={{ marginTop: 10 }}>
+              {majors.length === 0 ? <span>ยังไม่มีสาขา</span> : majors.map((m) => <span key={m.id}>{m.name}</span>)}
+            </div>
           </div>
 
           <StudentForm

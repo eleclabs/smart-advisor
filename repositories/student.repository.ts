@@ -30,6 +30,12 @@ export type StudentData = {
   profileImageUrl?: string;
   profileImagePublicId?: string;
   advisorEmail: string;
+  schoolId?: string;
+  schoolName?: string;
+  schoolProvince?: string;
+  schoolRegion?: string;
+  schoolVocationalOffice?: string;
+  schoolEducationType?: string;
 };
 
 export class StudentRepository {

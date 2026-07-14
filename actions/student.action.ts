@@ -57,6 +57,12 @@ function getStudentData(formData: FormData, advisorEmail: string): StudentData {
     guardianName: String(formData.get("guardianName") || "").trim(),
     address: String(formData.get("address") || "").trim(),
     note: String(formData.get("note") || "").trim(),
+    schoolId: String(formData.get("schoolId") || "").trim() || undefined,
+    schoolName: String(formData.get("schoolName") || "").trim(),
+    schoolProvince: String(formData.get("schoolProvince") || "").trim(),
+    schoolRegion: String(formData.get("schoolRegion") || "").trim(),
+    schoolVocationalOffice: String(formData.get("schoolVocationalOffice") || "").trim(),
+    schoolEducationType: String(formData.get("schoolEducationType") || "").trim(),
     advisorEmail
   };
 }

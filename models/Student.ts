@@ -116,6 +116,30 @@ const StudentSchema = new mongoose.Schema({
     required: true,
     trim: true,
     lowercase: true
+  },
+  schoolId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "School"
+  },
+  schoolName: {
+    type: String,
+    trim: true
+  },
+  schoolProvince: {
+    type: String,
+    trim: true
+  },
+  schoolRegion: {
+    type: String,
+    trim: true
+  },
+  schoolVocationalOffice: {
+    type: String,
+    trim: true
+  },
+  schoolEducationType: {
+    type: String,
+    trim: true
   }
 }, {
   timestamps: true

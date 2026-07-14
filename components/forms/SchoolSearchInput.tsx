@@ -18,6 +18,10 @@ type Props = {
   defaultRegion?: string;
   defaultVocationalOffice?: string;
   defaultEducationType?: string;
+  regionFieldName?: string;
+  vocationalOfficeFieldName?: string;
+  educationTypeFieldName?: string;
+  provinceFieldName?: string;
 };
 
 export default function SchoolSearchInput({
@@ -27,6 +31,10 @@ export default function SchoolSearchInput({
   defaultRegion = "",
   defaultVocationalOffice = "",
   defaultEducationType = "",
+  regionFieldName = "region",
+  vocationalOfficeFieldName = "vocationalOffice",
+  educationTypeFieldName = "educationType",
+  provinceFieldName = "schoolProvince",
 }: Props) {
   const [query, setQuery] = useState(defaultSchoolName);
   const [results, setResults] = useState<SchoolResult[]>([]);
@@ -177,10 +185,10 @@ export default function SchoolSearchInput({
       {/* hidden fields submitted with form */}
       <input type="hidden" name="schoolId" value={current?.id ?? ""} />
       <input type="hidden" name="schoolName" value={current?.name ?? ""} />
-      <input type="hidden" name="schoolProvince" value={current?.province ?? ""} />
-      <input type="hidden" name="region" value={current?.region ?? ""} />
-      <input type="hidden" name="vocationalOffice" value={current?.vocationalOffice ?? ""} />
-      <input type="hidden" name="educationType" value={current?.educationType ?? ""} />
+      <input type="hidden" name={provinceFieldName} value={current?.province ?? ""} />
+      <input type="hidden" name={regionFieldName} value={current?.region ?? ""} />
+      <input type="hidden" name={vocationalOfficeFieldName} value={current?.vocationalOffice ?? ""} />
+      <input type="hidden" name={educationTypeFieldName} value={current?.educationType ?? ""} />
     </div>
   );
 }
