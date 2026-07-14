@@ -4,10 +4,25 @@ import { isUserRole, type UserRole } from "@/lib/roles";
 import { UserRepository } from "@/repositories/user.repository";
 
 type RegisterData = {
-  fullname: FormDataEntryValue | null;
+  fullname?: FormDataEntryValue | null;
   email: FormDataEntryValue | null;
   password: FormDataEntryValue | null;
   roles: FormDataEntryValue[];
+  gender?: FormDataEntryValue | null;
+  title?: FormDataEntryValue | null;
+  firstNameTh?: FormDataEntryValue | null;
+  lastNameTh?: FormDataEntryValue | null;
+  firstNameEn?: FormDataEntryValue | null;
+  lastNameEn?: FormDataEntryValue | null;
+  phone?: FormDataEntryValue | null;
+  citizenId?: FormDataEntryValue | null;
+  region?: FormDataEntryValue | null;
+  province?: FormDataEntryValue | null;
+  vocationalOffice?: FormDataEntryValue | null;
+  educationType?: FormDataEntryValue | null;
+  schoolProvince?: FormDataEntryValue | null;
+  schoolId?: FormDataEntryValue | null;
+  schoolName?: FormDataEntryValue | null;
 };
 
 type CredentialsData = {
@@ -32,13 +47,46 @@ export class AuthService {
   }
 
   static async register(data: RegisterData) {
-    const fullname = String(data.fullname || "").trim();
+    const gender = String(data.gender || "").trim();
+    const title = String(data.title || "").trim();
+    const firstNameTh = String(data.firstNameTh || "").trim();
+    const lastNameTh = String(data.lastNameTh || "").trim();
+    const firstNameEn = String(data.firstNameEn || "").trim();
+    const lastNameEn = String(data.lastNameEn || "").trim();
+    const phone = String(data.phone || "").trim();
+    const citizenId = String(data.citizenId || "").trim();
+    const region = String(data.region || "").trim();
+    const province = String(data.province || "").trim();
+    const vocationalOffice = String(data.vocationalOffice || "").trim();
+    const educationType = String(data.educationType || "").trim();
+    const schoolProvince = String(data.schoolProvince || "").trim();
+    const schoolId = String(data.schoolId || "").trim();
+    const schoolName = String(data.schoolName || "").trim();
+    const fullname = String(data.fullname || `${firstNameTh} ${lastNameTh}`.trim()).trim();
     const email = String(data.email || "").trim().toLowerCase();
     const password = String(data.password || "");
     const requestedRoles = data.roles.map(String).filter(isUserRole);
-    const rolesToRegister = Array.from(new Set(requestedRoles));
+    // Self-registration may only create a `teacher` role. Other roles must be granted by an approver.
+    const requestedSelfRoles = requestedRoles.filter((r) => r === "teacher");
+    const rolesToRegister = Array.from(new Set(requestedSelfRoles.length ? requestedSelfRoles : ["teacher"]));
 
-    if (!fullname || !email || !password) {
+    if (
+      !gender ||
+      !title ||
+      !firstNameTh ||
+      !lastNameTh ||
+      !firstNameEn ||
+      !lastNameEn ||
+      !email ||
+      !password ||
+      !phone ||
+      !citizenId ||
+      !region ||
+      !province ||
+      !vocationalOffice ||
+      !educationType ||
+      !schoolProvince
+    ) {
       return {
         ok: false,
         message: "กรุณากรอกข้อมูลให้ครบถ้วน"
@@ -52,12 +100,7 @@ export class AuthService {
       };
     }
 
-    if (rolesToRegister.length === 0) {
-      return {
-        ok: false,
-        message: "สามารถสมัครได้เฉพาะครูที่ปรึกษา หัวหน้างานครูที่ปรึกษา หรือผู้บริหาร"
-      };
-    }
+    // Registration proceeds as a teacher by default; account remains inactive until approved.
 
     const exist =
       await UserRepository.findByEmail(
@@ -77,7 +120,7 @@ export class AuthService {
       }
 
       const roles = this.getUserRoles(exist);
-      const newRoles = rolesToRegister.filter((role) => !roles.includes(role));
+      const newRoles = rolesToRegister.filter((role) => !roles.includes(role as UserRole));
       if (newRoles.length === 0) {
         return {
           ok: false,
@@ -99,14 +142,27 @@ export class AuthService {
       );
 
     await UserRepository.create({
-
       fullname,
       email,
       role: rolesToRegister[0],
       roles: rolesToRegister,
-
-      password: hash
-
+      active: false,
+      password: hash,
+      gender,
+      title,
+      firstNameTh,
+      lastNameTh,
+      firstNameEn,
+      lastNameEn,
+      phone,
+      citizenId,
+      region,
+      province,
+      vocationalOffice,
+      educationType,
+      schoolProvince,
+      schoolId,
+      schoolName
     });
 
     return {

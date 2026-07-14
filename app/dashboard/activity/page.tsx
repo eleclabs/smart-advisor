@@ -104,7 +104,7 @@ function ActivityDetail({ activity }: { activity: ActivityView }) {
         <DetailItem label="หัวข้อเรื่อง" value={activity.topic} />
         <DetailItem label="วัตถุประสงค์" value={activity.objectives} />
         <DetailItem label="ขั้นตอนการดำเนินกิจกรรม" value={activity.activitySteps} />
-        <DetailItem label="การประเมินผลกิจกรรม" value={activity.evaluation} />
+        {/* การประเมินผลกิจกรรม ถูกตัดออกตามคำขอ */}
         <DetailItem label="ผลการจัดกิจกรรม" value={activity.activityResults} />
         <DetailItem label="ปัญหา/อุปสรรคที่พบ" value={activity.problems} />
         <DetailItem label="ผู้เรียนที่ต้องติดตามเป็นพิเศษ" value={activity.followUpStudents} />
@@ -251,15 +251,7 @@ function ActivityForm({
         />
       </fieldset>
 
-      <fieldset className="screening-section">
-        <legend>5. การประเมินผลกิจกรรม</legend>
-        <textarea
-          name="evaluation"
-          rows={4}
-          placeholder="ระบุวิธีและผลการประเมินกิจกรรม"
-          defaultValue={activity?.evaluation}
-        />
-      </fieldset>
+      {/* การประเมินผลกิจกรรม ถูกตัดออกตามคำขอ */}
 
       <fieldset className="screening-section">
         <legend>6. บันทึกหลังกิจกรรม</legend>

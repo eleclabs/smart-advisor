@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/mongodb";
 import mongoose from "mongoose";
 
 const SAFE_USER_FIELDS =
-  "fullname email role roles active profileImageUrl profileImagePublicId createdAt updatedAt";
+  "fullname email role roles active profileImageUrl profileImagePublicId gender title firstNameTh lastNameTh firstNameEn lastNameEn phone citizenId region province vocationalOffice educationType schoolProvince schoolId schoolName createdAt updatedAt";
 
 export type UserManagementData = {
   fullname: string;
@@ -13,6 +13,19 @@ export type UserManagementData = {
   active: boolean;
   profileImageUrl?: string;
   profileImagePublicId?: string;
+  gender?: string;
+  title?: string;
+  firstNameTh?: string;
+  lastNameTh?: string;
+  firstNameEn?: string;
+  lastNameEn?: string;
+  phone?: string;
+  citizenId?: string;
+  region?: string;
+  province?: string;
+  vocationalOffice?: string;
+  educationType?: string;
+  schoolProvince?: string;
 };
 
 export class UserRepository {
@@ -90,6 +103,64 @@ export class UserRepository {
     }
 
     return User.findById(id).select(SAFE_USER_FIELDS).lean();
+  }
+
+  static async findBySchool(schoolId: string) {
+    await connectDB();
+
+    if (!mongoose.isValidObjectId(String(schoolId))) {
+      return [];
+    }
+
+    return User.find({ schoolId })
+      .select(SAFE_USER_FIELDS)
+      .sort({ createdAt: -1 })
+      .lean();
+  }
+
+  static async setActiveById(id: string, active: boolean) {
+    await connectDB();
+
+    if (!mongoose.isValidObjectId(id)) return null;
+
+    return User.findByIdAndUpdate(id, { active }, { new: true }).select(SAFE_USER_FIELDS);
+  }
+
+  static async updateLimitedById(id: string, data: Partial<Record<string, any>>) {
+    await connectDB();
+
+    if (!mongoose.isValidObjectId(id)) return null;
+
+    const allowed: Record<string, unknown> = {};
+    // allow only specific fields to be edited by committee
+    const keys = [
+      "fullname",
+      "title",
+      "gender",
+      "firstNameTh",
+      "lastNameTh",
+      "firstNameEn",
+      "lastNameEn",
+      "phone",
+      "citizenId",
+      "province",
+      "region",
+      "vocationalOffice",
+      "educationType",
+      "schoolProvince",
+      "schoolId",
+      "schoolName",
+      "profileImageUrl",
+      "profileImagePublicId",
+      "roles",
+      "role",
+      "active"
+    ];
+    for (const k of keys) {
+      if (k in data) allowed[k] = data[k];
+    }
+
+    return User.findByIdAndUpdate(id, allowed, { new: true }).select(SAFE_USER_FIELDS);
   }
 
   static async updateById(id: string, data: UserManagementData) {

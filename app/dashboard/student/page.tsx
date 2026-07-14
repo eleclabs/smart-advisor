@@ -6,15 +6,19 @@ import {
   createStudentAction,
   deleteStudentAction,
   updateStudentAction
+  , importStudentsAction
 } from "@/actions/student.action";
 import { auth } from "@/lib/auth";
 import { CLASS_LEVEL_OPTIONS } from "@/lib/student-options";
 import { MajorRepository } from "@/repositories/major.repository";
+import StudentImport from "@/components/StudentImport";
 import { StudentRepository } from "@/repositories/student.repository";
 
 type StudentView = {
   id: string;
   studentCode: string;
+  citizenId?: string;
+  title?: string;
   fullname: string;
   classLevel: string;
   room: string;
@@ -22,9 +26,16 @@ type StudentView = {
   phone: string;
   gender: string;
   birthDate: string;
+  age?: string;
   weight: string;
   height: string;
   bloodType: string;
+  nickname?: string;
+  nationality?: string;
+  studentType?: string;
+  disabilityType?: string;
+  specialAbility?: string;
+  chronicDisease?: string;
   religion: string;
   guardianName: string;
   address: string;
@@ -37,6 +48,8 @@ type StudentView = {
 type StudentDocument = {
   _id: unknown;
   studentCode?: string;
+  citizenId?: string;
+  title?: string;
   fullname?: string;
   classLevel?: string;
   room?: string;
@@ -44,9 +57,16 @@ type StudentDocument = {
   phone?: string;
   gender?: string;
   birthDate?: string;
+  age?: string;
+  nickname?: string;
   weight?: string;
   height?: string;
   bloodType?: string;
+  nationality?: string;
+  studentType?: string;
+  disabilityType?: string;
+  specialAbility?: string;
+  chronicDisease?: string;
   religion?: string;
   guardianName?: string;
   address?: string;
@@ -77,6 +97,8 @@ function toStudentView(student: StudentDocument): StudentView {
   return {
     id: String(student._id),
     studentCode: student.studentCode || "",
+    citizenId: student.citizenId || "",
+    title: student.title || "",
     fullname: student.fullname || "",
     classLevel: student.classLevel || "",
     room: student.room || "",
@@ -84,9 +106,16 @@ function toStudentView(student: StudentDocument): StudentView {
     phone: student.phone || "",
     gender: student.gender || "",
     birthDate: student.birthDate || "",
+    age: student.age || "",
     weight: student.weight || "",
     height: student.height || "",
     bloodType: student.bloodType || "",
+    nickname: student.nickname || "",
+    nationality: student.nationality || "",
+    studentType: student.studentType || "",
+    disabilityType: student.disabilityType || "",
+    specialAbility: student.specialAbility || "",
+    chronicDisease: student.chronicDisease || "",
     religion: student.religion || "",
     guardianName: student.guardianName || "",
     address: student.address || "",
@@ -142,6 +171,16 @@ function StudentForm({
         </label>
 
         <label>
+          เลขประจำตัวประชาชน
+          <input name="citizenId" defaultValue={student?.citizenId} />
+        </label>
+
+        <label>
+          คำนำหน้าชื่อ
+          <input name="title" defaultValue={student?.title} />
+        </label>
+
+        <label>
           ชื่อ-สกุล
           <input name="fullname" required defaultValue={student?.fullname} />
         </label>
@@ -190,8 +229,18 @@ function StudentForm({
         </label>
 
         <label>
+          ชื่อเล่น
+          <input name="nickname" defaultValue={student?.nickname} />
+        </label>
+
+        <label>
           วันเดือนปีเกิด
           <input type="date" name="birthDate" defaultValue={student?.birthDate} />
+        </label>
+
+        <label>
+          อายุ
+          <input name="age" defaultValue={student?.age} />
         </label>
 
         <label>
@@ -216,6 +265,11 @@ function StudentForm({
         </label>
 
         <label>
+          สัญชาติ
+          <input name="nationality" defaultValue={student?.nationality} />
+        </label>
+
+        <label>
           ศาสนา
           <input name="religion" defaultValue={student?.religion} />
         </label>
@@ -228,6 +282,26 @@ function StudentForm({
         <label>
           ผู้ปกครอง
           <input name="guardianName" defaultValue={student?.guardianName} />
+        </label>
+
+        <label>
+          ประเภทนักเรียน
+          <input name="studentType" defaultValue={student?.studentType} />
+        </label>
+
+        <label>
+          ประเภทความพิการ
+          <input name="disabilityType" defaultValue={student?.disabilityType} />
+        </label>
+
+        <label>
+          ความสามารถพิเศษ
+          <input name="specialAbility" defaultValue={student?.specialAbility} />
+        </label>
+
+        <label>
+          โรคประจำตัว
+          <input name="chronicDisease" defaultValue={student?.chronicDisease} />
         </label>
       </div>
 
@@ -279,8 +353,10 @@ function StudentProfile({ student }: { student: StudentView }) {
         <StudentProfileImage name={student.fullname} url={student.profileImageUrl} />
         <div>
           <span>{student.studentCode}</span>
-          <h2>{student.fullname}</h2>
+          <h2>{student.title ? `${student.title} ${student.fullname}` : student.fullname}</h2>
           <p>{classInfo} / {student.major}</p>
+          <p>เลขประจำตัวประชาชน: {student.citizenId || '-'}</p>
+          <p>ชื่อเล่น: {student.nickname || '-'}</p>
         </div>
       </div>
 
@@ -304,7 +380,10 @@ function StudentProfile({ student }: { student: StudentView }) {
           <span>เพศ</span>
           <strong>{student.gender || "-"}</strong>
         </article>
-
+        <article>
+          <span>อายุ</span>
+          <strong>{student.age || "-"}</strong>
+        </article>
         <article>
           <span>วันเดือนปีเกิด</span>
           <strong>{student.birthDate || "-"}</strong>
@@ -318,6 +397,31 @@ function StudentProfile({ student }: { student: StudentView }) {
         <article>
           <span>หมู่เลือด</span>
           <strong>{student.bloodType || "-"}</strong>
+        </article>
+
+        <article>
+          <span>สัญชาติ</span>
+          <strong>{student.nationality || "-"}</strong>
+        </article>
+
+        <article>
+          <span>ประเภทนักเรียน</span>
+          <strong>{student.studentType || "-"}</strong>
+        </article>
+
+        <article>
+          <span>ประเภทความพิการ</span>
+          <strong>{student.disabilityType || "-"}</strong>
+        </article>
+
+        <article>
+          <span>ความสามารถพิเศษ</span>
+          <strong>{student.specialAbility || "-"}</strong>
+        </article>
+
+        <article>
+          <span>โรคประจำตัว</span>
+          <strong>{student.chronicDisease || "-"}</strong>
         </article>
 
         <article>
@@ -387,12 +491,20 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
           </p>
         </div>
 
-        <Link
-          className="management-primary-link"
-          href={showStudentList ? "/dashboard/student?mode=add" : "/dashboard/student"}
-        >
-          {showStudentList ? "เพิ่มผู้เรียน" : "กลับไปรายชื่อ"}
-        </Link>
+        <div style={{ display: "flex", gap: 12, alignItems: "center", flexDirection: "column" }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+            <Link
+              className="management-primary-link"
+              href={showStudentList ? "/dashboard/student?mode=add" : "/dashboard/student"}
+            >
+              {showStudentList ? "เพิ่มผู้เรียน" : "กลับไปรายชื่อ"}
+            </Link>
+          </div>
+
+          <div style={{ width: "100%" }}>
+            <StudentImport />
+          </div>
+        </div>
       </div>
 
       <div className="management-card">

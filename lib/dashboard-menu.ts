@@ -25,6 +25,11 @@ export const roleDashboards: Record<UserRole, RoleDashboard> = {
         href: "/dashboard/users"
       },
       {
+        label: "นำเข้าข้อมูลสถานศึกษา",
+        value: "นำเข้าไฟล์ CSV ของสถานศึกษาอาชีวศึกษารัฐ",
+        href: "/dashboard/schools"
+      },
+      {
         label: "การรู้จักผู้เรียนเป็นรายบุคคล",
         value: "ดู เพิ่ม แก้ไข และลบข้อมูลผู้เรียนทั้งหมดในระบบ",
         href: "/dashboard/student"
@@ -94,11 +99,15 @@ export const roleDashboards: Record<UserRole, RoleDashboard> = {
     ]
   },
   committee: {
-    title: "หน้าหลักหัวหน้างานครูที่ปรึกษา",
+    title: "หัวหน้างานครูที่ปรึกษา",
     description: "ตรวจสอบการดำเนินงาน การอนุมัติ และรายงานสรุป",
-    menuTitle: "เมนูหัวหน้างานครูที่ปรึกษา",
+    menuTitle: "เมนู",
     items: [
-      { label: "การอนุมัติ", value: "ตรวจสอบคำร้องที่รอการอนุมัติ" },
+      {
+        label: "จัดการผู้ใช้งาน",
+        value: "ดู แก้ไข และอนุมัติผู้ใช้งานในสถานศึกษาของคุณ",
+        href: "/dashboard/committee?mode=users"
+      },
       { label: "ภาพรวมการให้คำปรึกษา", value: "ติดตามการดำเนินงานให้คำปรึกษา" },
       {
         label: "การรายงานผล",

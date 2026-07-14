@@ -34,16 +34,25 @@ async function requireTeacherOrAdmin() {
 function getStudentData(formData: FormData, advisorEmail: string): StudentData {
   return {
     studentCode: String(formData.get("studentCode") || "").trim(),
+    citizenId: String(formData.get("citizenId") || "").trim(),
+    title: String(formData.get("title") || "").trim(),
     fullname: String(formData.get("fullname") || "").trim(),
     classLevel: String(formData.get("classLevel") || "").trim(),
     room: String(formData.get("room") || "").trim(),
     major: String(formData.get("major") || "").trim(),
     phone: String(formData.get("phone") || "").trim(),
+    age: String(formData.get("age") || "").trim(),
+    nickname: String(formData.get("nickname") || "").trim(),
     gender: String(formData.get("gender") || "").trim(),
     birthDate: String(formData.get("birthDate") || "").trim(),
     weight: String(formData.get("weight") || "").trim(),
     height: String(formData.get("height") || "").trim(),
     bloodType: String(formData.get("bloodType") || "").trim(),
+    nationality: String(formData.get("nationality") || "").trim(),
+    studentType: String(formData.get("studentType") || "").trim(),
+    disabilityType: String(formData.get("disabilityType") || "").trim(),
+    specialAbility: String(formData.get("specialAbility") || "").trim(),
+    chronicDisease: String(formData.get("chronicDisease") || "").trim(),
     religion: String(formData.get("religion") || "").trim(),
     guardianName: String(formData.get("guardianName") || "").trim(),
     address: String(formData.get("address") || "").trim(),
@@ -177,6 +186,63 @@ export async function deleteStudentAction(id: string) {
     "image"
   );
 
+  revalidatePath(STUDENT_PATH);
+  redirect(STUDENT_PATH);
+}
+
+export async function importStudentsAction(formData: FormData) {
+  const user = await requireTeacherOrAdmin();
+  const advisorEmail = String(user.email || "").trim().toLowerCase();
+
+  const file = formData.get("csvFile") as File | null;
+  if (!file) throw new Error("CSV file is required.");
+
+  const text = await file.text();
+  const lines = text.split(/\r?\n/).filter((l) => l.trim() !== "");
+  if (!lines.length) throw new Error("Empty CSV file.");
+
+  const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
+  const rows = lines.slice(1);
+  const items: StudentData[] = rows.map((line) => {
+    const cols = line.split(",");
+    const obj: any = {};
+    headers.forEach((h, i) => {
+      const val = String(cols[i] || "").trim();
+      // map common headers
+      if (h === "studentcode" || h === "รหัส" || h === "รหัสผู้เรียน") obj.studentCode = val;
+      else if (h === "fullname" || h === "name" || h === "ชื่อ-สกุล" || h === "ชื่อ") obj.fullname = val;
+      else if (h === "classlevel" || h === "ชั้น" || h === "ระดับชั้น") obj.classLevel = val;
+      else if (h === "major" || h === "สาขา") obj.major = val;
+      else if (h === "gender" || h === "เพศ") obj.gender = val;
+      else if (h === "birthdate" || h === "birthday" || h === "วันเกิด") obj.birthDate = val;
+      else if (h === "studentnumber" || h === "เลขที่") obj.studentNumber = val;
+      else if (h === "citizenid" || h === "เลขบัตร" || h === "เลขประจำตัวประชาชน") obj.citizenId = val;
+      else if (h === "nickname" || h === "ชื่อเล่น") obj.nickname = val;
+    });
+
+    return {
+      studentCode: obj.studentCode || `imp-${Math.random().toString(36).slice(2, 9)}`,
+      fullname: obj.fullname || "",
+      classLevel: obj.classLevel || "",
+      room: "",
+      major: obj.major || "",
+      phone: "",
+      gender: obj.gender || "ชาย",
+      birthDate: obj.birthDate || "",
+      weight: "",
+      height: "",
+      bloodType: "",
+      religion: "",
+      guardianName: "",
+      address: "",
+      note: "",
+      advisorEmail,
+      citizenId: obj.citizenId || "",
+      nickname: obj.nickname || ""
+    };
+  });
+
+  await StudentRepository.createMany(items);
   revalidatePath(STUDENT_PATH);
   redirect(STUDENT_PATH);
 }

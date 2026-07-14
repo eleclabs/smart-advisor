@@ -281,6 +281,37 @@ export default async function ReportPage() {
     })
   ].sort((left, right) => latestTimestamp(right.updatedAt) - latestTimestamp(left.updatedAt));
 
+  // Section 3 detailed student breakdown by class and major and 5 domains
+  const screeningMap = new Set((screenings as any[]).map((s) => String((s as any).studentId || "")));
+  const interventionMap = new Set((interventions as any[]).map((i) => String((i as any).studentId || "")));
+  const referralMap = new Set((referrals as any[]).map((r) => String((r as any).studentId || "")));
+  const activityList = (activities as any[]).map((a) => String(a.followUpStudents || ""));
+
+  const studentDetailRows = students.map((s) => {
+    const id = String((s as any)._id || "");
+    const hasScreening = screeningMap.has(id);
+    const hasIntervention = interventionMap.has(id);
+    const hasReferral = referralMap.has(id);
+    const hasActivity = activityList.some((txt) => {
+      return txt && (String(s.studentCode || "") && txt.includes(String(s.studentCode || "")) || String(s.fullname || "") && txt.includes(String(s.fullname || "")));
+    });
+
+    return {
+      id,
+      studentCode: s.studentCode || "-",
+      studentName: s.fullname || "-",
+      classLevel: s.classLevel || "-",
+      major: s.major || "-",
+      domains: {
+        know: true,
+        screening: hasScreening,
+        activity: hasActivity,
+        intervention: hasIntervention,
+        referral: hasReferral
+      }
+    };
+  }).sort((a, b) => a.classLevel.localeCompare(b.classLevel, "th") || a.major.localeCompare(b.major, "th") || a.studentName.localeCompare(b.studentName, "th"));
+
   return (
     <section className="report-page">
       <div className="dashboard-header">
@@ -400,6 +431,45 @@ export default async function ReportPage() {
               )) : <tr><td colSpan={8}>ยังไม่มีข้อมูลผลการติดตามการช่วยเหลือผู้เรียน</td></tr>}
             </tbody>
           </table>
+        </div>
+
+        <div style={{ marginTop: 24 }}>
+          <h3>รายชื่อผู้เรียน แยกตามชั้นปีและสาขา (ครบตามกระบวนการ)</h3>
+          <PrintReportButton section="follow-up-results-detail" title="รายชื่อผู้เรียน แยกตามชั้นปีและสาขา" />
+          <div className="student-table-wrap report-table-wrap" data-report-section="follow-up-results-detail">
+            <table className="overview-table report-table">
+              <thead>
+                <tr>
+                  <th>ชั้นปี</th>
+                  <th>สาขา</th>
+                  <th>รหัส</th>
+                  <th>ชื่อ-นามสกุล</th>
+                  <th>รู้จัก</th>
+                  <th>คัดกรอง</th>
+                  <th>ส่งเสริม</th>
+                  <th>ป้องกัน/แก้ไข</th>
+                  <th>ส่งต่อ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {studentDetailRows.length ? studentDetailRows.map((row) => (
+                  <tr key={row.id}>
+                    <td>{row.classLevel}</td>
+                    <td>{row.major}</td>
+                    <td>{row.studentCode}</td>
+                    <td>{row.studentName}</td>
+                    <td>{row.domains.know ? "✓" : ""}</td>
+                    <td>{row.domains.screening ? "✓" : ""}</td>
+                    <td>{row.domains.activity ? "✓" : ""}</td>
+                    <td>{row.domains.intervention ? "✓" : ""}</td>
+                    <td>{row.domains.referral ? "✓" : ""}</td>
+                  </tr>
+                )) : (
+                  <tr><td colSpan={9}>ยังไม่มีข้อมูลผู้เรียน</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
     </section>

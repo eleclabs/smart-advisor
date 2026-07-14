@@ -9,11 +9,20 @@ export type StudentData = {
   room: string;
   major: string;
   phone: string;
+  citizenId?: string;
+  title?: string;
   gender: string;
   birthDate: string;
+  age?: string;
+  nickname?: string;
   weight: string;
   height: string;
   bloodType: string;
+  nationality?: string;
+  studentType?: string;
+  disabilityType?: string;
+  specialAbility?: string;
+  chronicDisease?: string;
   religion: string;
   guardianName: string;
   address: string;
@@ -92,6 +101,35 @@ export class StudentRepository {
     await connectDB();
 
     return Student.create(data);
+  }
+
+  static async createMany(items: StudentData[]) {
+    await connectDB();
+
+    if (!items.length) return { inserted: 0 };
+
+    const ops = items.map((item) => {
+      const filter: any = {};
+      if (item.studentCode) filter.studentCode = item.studentCode;
+      else if ((item as any).citizenId) filter.citizenId = (item as any).citizenId;
+      else return { insertOne: { document: item } };
+
+      return {
+        updateOne: {
+          filter,
+          update: { $set: item },
+          upsert: true
+        }
+      } as any;
+    }).filter(Boolean);
+
+    if (!ops.length) {
+      const res = await Student.insertMany(items);
+      return { inserted: Array.isArray(res) ? res.length : 0 };
+    }
+
+    const result = await Student.bulkWrite(ops as any[]);
+    return result;
   }
 
   static async updateById(id: string, data: Partial<StudentData>) {

@@ -29,6 +29,14 @@ const StudentSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  citizenId: {
+    type: String,
+    trim: true
+  },
+  title: {
+    type: String,
+    trim: true
+  },
   gender: {
     type: String,
     enum: ["ชาย", "หญิง"],
@@ -36,6 +44,14 @@ const StudentSchema = new mongoose.Schema({
     trim: true
   },
   birthDate: {
+    type: String,
+    trim: true
+  },
+  age: {
+    type: String,
+    trim: true
+  },
+  nickname: {
     type: String,
     trim: true
   },
@@ -48,6 +64,26 @@ const StudentSchema = new mongoose.Schema({
     trim: true
   },
   bloodType: {
+    type: String,
+    trim: true
+  },
+  nationality: {
+    type: String,
+    trim: true
+  },
+  studentType: {
+    type: String,
+    trim: true
+  },
+  disabilityType: {
+    type: String,
+    trim: true
+  },
+  specialAbility: {
+    type: String,
+    trim: true
+  },
+  chronicDisease: {
     type: String,
     trim: true
   },

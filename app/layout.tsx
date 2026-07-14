@@ -7,6 +7,10 @@ import Footer from "@/components/Footer";
 export const metadata: Metadata = {
   title: "Smart Advisor",
   description: "ระบบดูแลช่วยเหลือและติดตามผู้เรียนสำหรับสถานศึกษา",
+  icons: {
+    icon: '/vea-logo.svg',
+    apple: '/vea-logo.svg'
+  }
 };
 
 export default function RootLayout({

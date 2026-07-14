@@ -39,10 +39,24 @@ export async function registerAction(
   const formData = getFormData(stateOrFormData, actionFormData);
 
   const result = await AuthService.register({
-    fullname: formData.get("fullname"),
     email: formData.get("email"),
     password: formData.get("password"),
-    roles: formData.getAll("roles")
+    roles: formData.getAll("roles"),
+    gender: formData.get("gender"),
+    title: formData.get("title"),
+    firstNameTh: formData.get("firstNameTh"),
+    lastNameTh: formData.get("lastNameTh"),
+    firstNameEn: formData.get("firstNameEn"),
+    lastNameEn: formData.get("lastNameEn"),
+    phone: formData.get("phone"),
+    citizenId: formData.get("citizenId"),
+    region: formData.get("region"),
+    province: formData.get("province"),
+    vocationalOffice: formData.get("vocationalOffice"),
+    educationType: formData.get("educationType"),
+    schoolProvince: formData.get("schoolProvince"),
+    schoolId: formData.get("schoolId"),
+    schoolName: formData.get("schoolName")
   });
 
   if (!result.ok) {

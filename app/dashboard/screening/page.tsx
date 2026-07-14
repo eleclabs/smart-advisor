@@ -322,12 +322,17 @@ function ScreeningForm({
 
       <fieldset className="screening-section">
         <legend>5. ด้านรายได้ครอบครัว</legend>
-        <textarea
-          name="familyIncome"
-          rows={4}
-          placeholder="บันทึกรายได้ ภาระค่าใช้จ่าย หรือสถานะทางเศรษฐกิจของครอบครัว"
-          defaultValue={record?.familyIncome}
-        />
+        <label>
+          รายได้ครอบครัว
+          <select name="familyIncome" defaultValue={record?.familyIncome || ""}>
+            <option value="">ไม่ระบุ</option>
+            <option value="ต่ำกว่า 10,000">ต่ำกว่า 10,000</option>
+            <option value="10,000-30,000">10,000-30,000</option>
+            <option value="30,000-40,000">30,000-40,000</option>
+            <option value="40,000-50,000">40,000-50,000</option>
+            <option value="มากกว่า 50,000">มากกว่า 50,000</option>
+          </select>
+        </label>
       </fieldset>
 
       <fieldset className="screening-section">
