@@ -60,9 +60,38 @@ export default async function SchoolsPage({
 
       <div className="management-card">
         <div className="management-section-header">
-          <div><h2>จำนวนสถานศึกษาที่บันทึก</h2></div>
+          <div><h2>รายชื่อสถานศึกษาในระบบ</h2><p>{count} รายการ เรียงตามจังหวัด</p></div>
         </div>
-        <p>ขณะนี้มีสถานศึกษาในระบบทั้งหมด {count} รายการ</p>
+        {count === 0 ? (
+          <p className="empty-state">ยังไม่มีข้อมูลสถานศึกษา</p>
+        ) : (
+          <div className="student-table-wrap">
+            <table className="student-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>ชื่อสถานศึกษา</th>
+                  <th>จังหวัด</th>
+                  <th>ภาค</th>
+                  <th>ประเภท</th>
+                  <th>สำนักงานอาชีวศึกษา</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(schools as any[]).map((s, i) => (
+                  <tr key={String(s._id)}>
+                    <td>{i + 1}</td>
+                    <td>{s.name || "-"}</td>
+                    <td>{s.province || "-"}</td>
+                    <td>{s.region || "-"}</td>
+                    <td>{s.educationType || "-"}</td>
+                    <td>{s.vocationalOffice || "-"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </section>
   );

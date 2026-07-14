@@ -2422,6 +2422,51 @@ h2{
   background: #b91c1c;
 }
 
+.report-export-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.report-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border: 1.5px solid transparent;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1.4;
+  transition: filter 0.15s;
+  white-space: nowrap;
+}
+
+.report-export-btn:hover {
+  filter: brightness(0.9);
+}
+
+.report-export-pdf {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.report-export-word {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
+.report-export-excel {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #15803d;
+}
+
 .report-vertical-chart-wrap {
   overflow-x: auto;
   padding: 8px 0 4px;
@@ -2572,7 +2617,8 @@ h2{
   body[data-print-report-section] .dashboard-sidebar,
   body[data-print-report-section] .report-page > .dashboard-header,
   body[data-print-report-section] .report-metrics,
-  body[data-print-report-section] .report-print-button {
+  body[data-print-report-section] .report-print-button,
+  body[data-print-report-section] .report-export-group {
     display: none !important;
   }
 

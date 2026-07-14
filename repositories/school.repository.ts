@@ -74,6 +74,6 @@ export class SchoolRepository {
 
   static async findAll() {
     await connectDB();
-    return School.find().sort({ name: 1 }).lean();
+    return School.find().sort({ province: 1, name: 1 }).lean();
   }
 }
