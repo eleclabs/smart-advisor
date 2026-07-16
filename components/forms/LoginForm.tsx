@@ -44,9 +44,6 @@ export default function LoginForm() {
           <option value="committee">หัวหน้างานครูที่ปรึกษา</option>
           <option value="admin">ผู้บริหาร</option>
         </select>
-        <p className="register-role-note">
-          เลือกบทบาทที่ต้องการเข้าใช้งาน และสามารถสลับบทบาทภายหลังจาก Navbar
-        </p>
 
         {state.message ? (
           <p
