@@ -222,7 +222,7 @@ function ActivityForm({
       </div>
 
       <fieldset className="screening-section">
-        <legend>1.หัวข้อเรื่อง</legend>
+        <legend>หัวข้อเรื่อง</legend>
         <input
           name="topic"
           required
