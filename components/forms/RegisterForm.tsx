@@ -286,17 +286,13 @@ export default function RegisterForm() {
           </div>
 
           <div className="register-grid">
-            <fieldset className="register-radio-fieldset">
-              <legend>เพศ</legend>
-              <label>
-                <input type="radio" name="gender" value="male" defaultChecked />
-                ชาย
-              </label>
-              <label>
-                <input type="radio" name="gender" value="female" />
-                หญิง
-              </label>
-            </fieldset>
+            <div>
+              <label htmlFor="title">เพศ</label>
+              <select id="title" name="gender">
+                <option value="male">ชาย</option>
+                <option value="female">หญิง</option>
+              </select>
+            </div>
 
             <div>
               <label htmlFor="title">คำนำหน้านาม</label>

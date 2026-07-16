@@ -222,7 +222,7 @@ function ActivityForm({
       </div>
 
       <fieldset className="screening-section">
-        <legend>1. หัวข้อเรื่อง</legend>
+        <legend>1.หัวข้อเรื่อง</legend>
         <input
           name="topic"
           required
@@ -232,7 +232,7 @@ function ActivityForm({
       </fieldset>
 
       <fieldset className="screening-section">
-        <legend>2. วัตถุประสงค์</legend>
+        <legend>วัตถุประสงค์</legend>
         <textarea
           name="objectives"
           rows={4}
@@ -242,7 +242,7 @@ function ActivityForm({
       </fieldset>
 
       <fieldset className="screening-section">
-        <legend>3. ขั้นตอนการดำเนินกิจกรรม</legend>
+        <legend>ขั้นตอนการดำเนินกิจกรรม</legend>
         <textarea
           name="activitySteps"
           rows={6}
@@ -254,7 +254,7 @@ function ActivityForm({
       {/* การประเมินผลกิจกรรม ถูกตัดออกตามคำขอ */}
 
       <fieldset className="screening-section">
-        <legend>6. บันทึกหลังกิจกรรม</legend>
+        <legend>บันทึกหลังกิจกรรม</legend>
         <div className="activity-notes-grid">
           <label>
             ผลการจัดกิจกรรม
