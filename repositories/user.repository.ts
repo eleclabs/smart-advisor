@@ -197,6 +197,23 @@ export class UserRepository {
     });
   }
 
+  static async findAdminEmails() {
+    await connectDB();
+
+    const admins = await User.find({
+      active: { $ne: false },
+      $or: [
+        { roles: "admin" },
+        { roles: { $exists: false }, role: "admin" },
+        { roles: { $size: 0 }, role: "admin" }
+      ]
+    }).select("email").lean();
+
+    return admins
+      .map((admin) => String((admin as { email?: string }).email || ""))
+      .filter(Boolean);
+  }
+
   static async setPasswordResetToken(
     email: string,
     passwordResetToken: string,
@@ -213,6 +230,38 @@ export class UserRepository {
         passwordResetExpires
       }
     );
+  }
+
+  static async findByValidResetToken(passwordResetToken: string) {
+    await connectDB();
+
+    return User.findOne({
+      passwordResetToken,
+      passwordResetExpires: { $gt: new Date() }
+    });
+  }
+
+  static async setPasswordAndClearResetToken(id: string, password: string) {
+    await connectDB();
+
+    if (!mongoose.isValidObjectId(id)) {
+      return null;
+    }
+
+    return User.findByIdAndUpdate(id, {
+      password,
+      $unset: { passwordResetToken: "", passwordResetExpires: "" }
+    }, { new: true });
+  }
+
+  static async setPasswordById(id: string, password: string) {
+    await connectDB();
+
+    if (!mongoose.isValidObjectId(id)) {
+      return null;
+    }
+
+    return User.findByIdAndUpdate(id, { password }, { new: true }).select(SAFE_USER_FIELDS);
   }
 
 }

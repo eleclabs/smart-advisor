@@ -191,6 +191,19 @@ function UserForm({
         )}
       </div>
 
+      <div className="form-grid">
+        <label>
+          ตั้งรหัสผ่านใหม่ (ไม่บังคับ)
+          <input
+            autoComplete="new-password"
+            minLength={6}
+            name="newPassword"
+            placeholder="เว้นว่างหากไม่ต้องการเปลี่ยน"
+            type="password"
+          />
+        </label>
+      </div>
+
       {isCurrentUser ? (
         <p className="user-safety-note">
           เพื่อป้องกันการสูญเสียสิทธิ์ คุณไม่สามารถลด role หรือปิดบัญชีที่กำลังใช้งานได้

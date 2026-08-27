@@ -32,12 +32,16 @@ export default function NavbarClient({ user }: NavbarClientProps) {
         </Link>
 
         <button
+          aria-expanded={menuOpen}
           aria-label="เปิดหรือปิดเมนู"
           className="menu-btn"
           onClick={() => setMenuOpen((open) => !open)}
           type="button"
         >
-          เมนู
+          <span className="menu-btn-bar" />
+          <span className="menu-btn-bar" />
+          <span className="menu-btn-bar" />
+          <span className="menu-btn-bar" />
         </button>
 
         <ul className={menuOpen ? "nav-links active" : "nav-links"}>

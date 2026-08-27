@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { isUserRole, type UserRole } from "@/lib/roles";
+import { getAppUrl, sendMail } from "@/lib/mailer";
 import { UserRepository } from "@/repositories/user.repository";
 
 type RegisterData = {
@@ -129,6 +130,7 @@ export class AuthService {
       }
 
       await UserRepository.setRoles(email, [...roles, ...newRoles]);
+      await this.notifyRegistration(email, fullname);
       return {
         ok: true,
         message: "เพิ่มบทบาทให้บัญชีเดิมสำเร็จ"
@@ -165,10 +167,30 @@ export class AuthService {
       schoolName
     });
 
+    await this.notifyRegistration(email, fullname);
+
     return {
       ok: true,
       message: "สมัครสมาชิกสำเร็จ"
     };
+  }
+
+  static async notifyRegistration(email: string, fullname: string) {
+    const adminEmails = await UserRepository.findAdminEmails();
+
+    await sendMail({
+      to: [{ email, name: fullname }],
+      subject: "สมัครสมาชิก Smart Advisor สำเร็จ",
+      html: `<p>สวัสดีคุณ ${fullname},</p><p>คุณได้สมัครใช้งานระบบ Smart Advisor เรียบร้อยแล้ว บัญชีของคุณกำลังรอการอนุมัติจากผู้ดูแลระบบ</p><p>หากได้รับการอนุมัติแล้ว คุณจะสามารถเข้าสู่ระบบได้ตามปกติ</p>`
+    });
+
+    if (adminEmails.length > 0) {
+      await sendMail({
+        to: adminEmails,
+        subject: "มีผู้สมัครใช้งาน Smart Advisor ใหม่",
+        html: `<p>มีผู้สมัครใช้งานใหม่ในระบบ Smart Advisor</p><p>ชื่อ: ${fullname}<br/>อีเมล: ${email}</p><p>กรุณาตรวจสอบและอนุมัติบัญชีที่เมนูจัดการผู้ใช้งาน</p>`
+      });
+    }
   }
 
   static async validateCredentials(data: CredentialsData) {
@@ -265,10 +287,79 @@ export class AuthService {
       passwordResetExpires
     );
 
+    const resetLink = `${getAppUrl()}/reset-password?token=${resetToken}`;
+
+    await sendMail({
+      to: [{ email, name: user.fullname || "" }],
+      subject: "คำขอตั้งรหัสผ่านใหม่ Smart Advisor",
+      html: `<p>คุณได้ขอตั้งรหัสผ่านใหม่สำหรับบัญชี Smart Advisor</p><p>กรุณากดลิงก์ด้านล่างเพื่อตั้งรหัสผ่านใหม่ (ลิงก์หมดอายุใน 30 นาที)</p><p><a href="${resetLink}">${resetLink}</a></p><p>หากคุณไม่ได้เป็นผู้ขอ กรุณาเพิกเฉยต่ออีเมลฉบับนี้</p>`
+    });
+
+    const adminEmails = await UserRepository.findAdminEmails();
+    if (adminEmails.length > 0) {
+      await sendMail({
+        to: adminEmails,
+        subject: "มีคำขอตั้งรหัสผ่านใหม่ในระบบ Smart Advisor",
+        html: `<p>บัญชีอีเมล ${email} ได้ขอตั้งรหัสผ่านใหม่</p><p>หากผู้ใช้ไม่ได้เป็นผู้ขอ โปรดตรวจสอบความปลอดภัยของบัญชีนี้</p>`
+      });
+    }
+
     return {
       ok: true,
-      message: "สร้าง reset token สำเร็จ",
-      resetToken
+      message: "ส่งลิงก์ตั้งรหัสผ่านใหม่ไปยังอีเมลของคุณแล้ว กรุณาตรวจสอบกล่องจดหมาย"
+    };
+  }
+
+  static async resetPassword(
+    tokenValue: FormDataEntryValue | null,
+    passwordValue: FormDataEntryValue | null,
+    confirmPasswordValue: FormDataEntryValue | null
+  ) {
+    const token = String(tokenValue || "").trim();
+    const password = String(passwordValue || "");
+    const confirmPassword = String(confirmPasswordValue || "");
+
+    if (!token || !password || !confirmPassword) {
+      return {
+        ok: false,
+        message: "กรุณากรอกข้อมูลให้ครบถ้วน"
+      };
+    }
+
+    if (password.length < 6) {
+      return {
+        ok: false,
+        message: "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร"
+      };
+    }
+
+    if (password !== confirmPassword) {
+      return {
+        ok: false,
+        message: "รหัสผ่านยืนยันไม่ตรงกัน"
+      };
+    }
+
+    const passwordResetToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+
+    const user = await UserRepository.findByValidResetToken(passwordResetToken);
+
+    if (!user) {
+      return {
+        ok: false,
+        message: "ลิงก์รีเซ็ตรหัสผ่านไม่ถูกต้องหรือหมดอายุ"
+      };
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+    await UserRepository.setPasswordAndClearResetToken(String(user._id), hash);
+
+    return {
+      ok: true,
+      message: "ตั้งรหัสผ่านใหม่สำเร็จ กรุณาเข้าสู่ระบบ"
     };
   }
 

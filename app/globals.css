@@ -35,6 +35,8 @@ h2{
 }
 
 .navbar {
+  position: relative;
+  z-index: 100;
   background: #0f4cbd;
   color: white;
   padding: 14px 24px;
@@ -193,10 +195,19 @@ h2{
 
 .menu-btn {
   display: none;
+  flex-direction: column;
+  gap: 4px;
   background: none;
   border: none;
-  color: white;
-  font-size: 26px;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.menu-btn-bar {
+  width: 24px;
+  height: 3px;
+  background: white;
+  border-radius: 2px;
 }
 
 
@@ -2142,6 +2153,58 @@ h2{
   font-size: 21px;
 }
 
+.contact-form {
+  max-width: 520px;
+  margin: 24px auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.contact-form label {
+  display: block;
+  margin-bottom: 6px;
+  color: #0b1f3a;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 14px;
+  border: 1px solid #b9c4d3;
+  border-radius: 8px;
+  background: white;
+  color: #0b1f3a;
+  font: inherit;
+  resize: vertical;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: #facc15;
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.32);
+  outline: none;
+}
+
+.contact-form button {
+  align-self: flex-start;
+  padding: 12px 20px;
+  background: #0f4cbd;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.contact-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 .management-primary-button,
 .management-danger-button {
   border: 0;
@@ -2973,7 +3036,7 @@ h2{
 
 @media (max-width: 768px) {
   .menu-btn {
-    display: block;
+    display: flex;
   }
 
   .nav-links {
@@ -2981,6 +3044,7 @@ h2{
     position: absolute;
     top: 64px;
     right: 20px;
+    z-index: 1000;
     flex-direction: column;
     align-items: flex-start;
     background: #0f4cbd;

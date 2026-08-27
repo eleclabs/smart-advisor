@@ -59,6 +59,10 @@ export default function LoginForm() {
         </button>
 
         <p className="auth-help">
+          <Link href="/forgot-password">ลืมรหัสผ่าน?</Link>
+        </p>
+
+        <p className="auth-help">
           ยังไม่มีบัญชี? <Link href="/register">สมัครสมาชิก</Link>
         </p>
       </form>

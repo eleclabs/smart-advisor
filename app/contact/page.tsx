@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import ContactForm from "@/components/forms/ContactForm";
 
 export const metadata: Metadata = {
   title: "ติดต่อเรา | Smart Advisor",
@@ -79,6 +80,18 @@ export default function ContactPage() {
             </p>
           </aside>
         </div>
+      </div>
+
+      <div className="public-section public-section-soft">
+        <div className="public-section-heading">
+          <p className="public-eyebrow">ส่งคำขอความช่วยเหลือ</p>
+          <h2>แจ้งปัญหาหรือขอความช่วยเหลือทางอีเมล</h2>
+          <p>
+            กรอกแบบฟอร์มด้านล่าง ระบบจะส่งคำขอของคุณไปยังผู้ดูแลระบบ
+            และส่งอีเมลยืนยันกลับไปยังอีเมลที่ระบุ
+          </p>
+        </div>
+        <ContactForm />
       </div>
 
       <div className="public-callout contact-callout">

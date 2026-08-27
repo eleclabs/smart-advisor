@@ -1,5 +1,6 @@
 "use server";
 
+import bcrypt from "bcrypt";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -106,6 +107,15 @@ export async function updateUserAction(id: string, formData: FormData) {
   };
 
   await UserRepository.updateById(id, updateData);
+
+  const newPassword = String(formData.get("newPassword") || "");
+  if (newPassword) {
+    if (newPassword.length < 6) {
+      throw new Error("รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร");
+    }
+    const hash = await bcrypt.hash(newPassword, 10);
+    await UserRepository.setPasswordById(id, hash);
+  }
 
   if ((profileImage || removeProfileImage) && target.profileImagePublicId) {
     await deleteCloudinaryAsset(target.profileImagePublicId, "image");

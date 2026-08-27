@@ -9,7 +9,6 @@ import { UserRepository } from "@/repositories/user.repository";
 export type AuthActionState = {
   status: "idle" | "success" | "error";
   message: string;
-  resetToken?: string;
 };
 
 const errorState = (message: string): AuthActionState => ({
@@ -117,11 +116,31 @@ export async function forgotPasswordAction(
 
   return {
     status: "success",
-    message:
-      "สร้างรหัสรีเซ็ตรหัสผ่านแล้ว โปรดนำ token นี้ไปใช้ต่อกับขั้นตอนตั้งรหัสผ่านใหม่",
-    resetToken: result.resetToken
+    message: result.message
   };
 
+}
+
+export async function resetPasswordAction(
+  stateOrFormData: AuthActionState | FormData,
+  actionFormData?: FormData
+): Promise<AuthActionState> {
+  const formData = getFormData(stateOrFormData, actionFormData);
+
+  const result = await AuthService.resetPassword(
+    formData.get("token"),
+    formData.get("password"),
+    formData.get("confirmPassword")
+  );
+
+  if (!result.ok) {
+    return errorState(result.message);
+  }
+
+  return {
+    status: "success",
+    message: result.message
+  };
 }
 
 export async function logoutAction() {
