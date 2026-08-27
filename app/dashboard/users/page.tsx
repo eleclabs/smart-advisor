@@ -15,7 +15,22 @@ type UserView = {
   active: boolean;
   profileImageUrl: string;
   profileImagePublicId: string;
+  gender: string;
+  title: string;
+  firstNameTh: string;
+  lastNameTh: string;
+  firstNameEn: string;
+  lastNameEn: string;
+  phone: string;
+  citizenId: string;
+  region: string;
+  province: string;
+  vocationalOffice: string;
+  educationType: string;
+  schoolProvince: string;
+  schoolName: string;
   createdAt?: Date | string;
+  updatedAt?: Date | string;
 };
 
 type UserDocument = {
@@ -27,7 +42,27 @@ type UserDocument = {
   active?: boolean;
   profileImageUrl?: string;
   profileImagePublicId?: string;
+  gender?: string;
+  title?: string;
+  firstNameTh?: string;
+  lastNameTh?: string;
+  firstNameEn?: string;
+  lastNameEn?: string;
+  phone?: string;
+  citizenId?: string;
+  region?: string;
+  province?: string;
+  vocationalOffice?: string;
+  educationType?: string;
+  schoolProvince?: string;
+  schoolName?: string;
   createdAt?: Date | string;
+  updatedAt?: Date | string;
+};
+
+const GENDER_LABELS: Record<string, string> = {
+  male: "ชาย",
+  female: "หญิง"
 };
 
 type UsersPageProps = {
@@ -54,7 +89,22 @@ function toUserView(user: UserDocument): UserView {
     active: user.active !== false,
     profileImageUrl: user.profileImageUrl || "",
     profileImagePublicId: user.profileImagePublicId || "",
-    createdAt: user.createdAt
+    gender: user.gender || "",
+    title: user.title || "",
+    firstNameTh: user.firstNameTh || "",
+    lastNameTh: user.lastNameTh || "",
+    firstNameEn: user.firstNameEn || "",
+    lastNameEn: user.lastNameEn || "",
+    phone: user.phone || "",
+    citizenId: user.citizenId || "",
+    region: user.region || "",
+    province: user.province || "",
+    vocationalOffice: user.vocationalOffice || "",
+    educationType: user.educationType || "",
+    schoolProvince: user.schoolProvince || "",
+    schoolName: user.schoolName || "",
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt
   };
 }
 
@@ -74,16 +124,39 @@ function UserProfile({ user, isCurrentUser }: { user: UserView; isCurrentUser: b
   return (
     <div className="user-profile-detail">
       <ProfileImage name={user.fullname} url={user.profileImageUrl} />
+
+      <h3 className="user-profile-section-title">ข้อมูลบัญชี</h3>
       <div className="student-profile-grid user-profile-grid">
-      <article><span>ชื่อ-นามสกุล</span><strong>{user.fullname || "-"}</strong></article>
-      <article><span>อีเมล</span><strong>{user.email || "-"}</strong></article>
-      <article>
-        <span>สิทธิ์การใช้งาน</span>
-        <strong>{user.roles.map((role) => ROLE_LABELS[role]).join(", ")}</strong>
-      </article>
-      <article><span>สถานะบัญชี</span><strong>{user.active ? "เปิดใช้งาน" : "ปิดใช้งาน"}</strong></article>
-      <article><span>วันที่สมัคร</span><strong>{formatDate(user.createdAt)}</strong></article>
-      <article><span>ประเภทบัญชี</span><strong>{isCurrentUser ? "บัญชีของคุณ" : "ผู้ใช้งานระบบ"}</strong></article>
+        <article><span>ชื่อ-นามสกุล</span><strong>{user.fullname || "-"}</strong></article>
+        <article><span>อีเมล</span><strong>{user.email || "-"}</strong></article>
+        <article>
+          <span>สิทธิ์การใช้งาน</span>
+          <strong>{user.roles.map((role) => ROLE_LABELS[role]).join(", ")}</strong>
+        </article>
+        <article><span>สถานะบัญชี</span><strong>{user.active ? "เปิดใช้งาน" : "ปิดใช้งาน"}</strong></article>
+        <article><span>วันที่สมัคร</span><strong>{formatDate(user.createdAt)}</strong></article>
+        <article><span>แก้ไขล่าสุด</span><strong>{formatDate(user.updatedAt)}</strong></article>
+        <article><span>ประเภทบัญชี</span><strong>{isCurrentUser ? "บัญชีของคุณ" : "ผู้ใช้งานระบบ"}</strong></article>
+      </div>
+
+      <h3 className="user-profile-section-title">ข้อมูลส่วนตัว</h3>
+      <div className="student-profile-grid user-profile-grid">
+        <article><span>คำนำหน้า</span><strong>{user.title || "-"}</strong></article>
+        <article><span>เพศ</span><strong>{GENDER_LABELS[user.gender] || user.gender || "-"}</strong></article>
+        <article><span>ชื่อ-นามสกุล (ไทย)</span><strong>{[user.firstNameTh, user.lastNameTh].filter(Boolean).join(" ") || "-"}</strong></article>
+        <article><span>ชื่อ-นามสกุล (อังกฤษ)</span><strong>{[user.firstNameEn, user.lastNameEn].filter(Boolean).join(" ") || "-"}</strong></article>
+        <article><span>เบอร์โทรศัพท์</span><strong>{user.phone || "-"}</strong></article>
+        <article><span>เลขบัตรประชาชน</span><strong>{user.citizenId || "-"}</strong></article>
+      </div>
+
+      <h3 className="user-profile-section-title">ข้อมูลสถานศึกษา</h3>
+      <div className="student-profile-grid user-profile-grid">
+        <article><span>ภาค</span><strong>{user.region || "-"}</strong></article>
+        <article><span>จังหวัด</span><strong>{user.province || "-"}</strong></article>
+        <article><span>สำนักงานอาชีวศึกษา</span><strong>{user.vocationalOffice || "-"}</strong></article>
+        <article><span>ประเภทการศึกษา</span><strong>{user.educationType || "-"}</strong></article>
+        <article><span>จังหวัดสถานศึกษา</span><strong>{user.schoolProvince || "-"}</strong></article>
+        <article><span>สถานศึกษา</span><strong>{user.schoolName || "-"}</strong></article>
       </div>
     </div>
   );
