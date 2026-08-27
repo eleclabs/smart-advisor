@@ -3,6 +3,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { deleteUserAction, updateUserAction } from "@/actions/user.action";
 import { auth } from "@/lib/auth";
+import { maskCitizenId } from "@/lib/format";
 import { isUserRole, ROLE_LABELS, USER_ROLES, type UserRole } from "@/lib/roles";
 import { UserRepository } from "@/repositories/user.repository";
 
@@ -146,7 +147,7 @@ function UserProfile({ user, isCurrentUser }: { user: UserView; isCurrentUser: b
         <article><span>ชื่อ-นามสกุล (ไทย)</span><strong>{[user.firstNameTh, user.lastNameTh].filter(Boolean).join(" ") || "-"}</strong></article>
         <article><span>ชื่อ-นามสกุล (อังกฤษ)</span><strong>{[user.firstNameEn, user.lastNameEn].filter(Boolean).join(" ") || "-"}</strong></article>
         <article><span>เบอร์โทรศัพท์</span><strong>{user.phone || "-"}</strong></article>
-        <article><span>เลขบัตรประชาชน</span><strong>{user.citizenId || "-"}</strong></article>
+        <article><span>เลขบัตรประชาชน</span><strong>{maskCitizenId(user.citizenId)}</strong></article>
       </div>
 
       <h3 className="user-profile-section-title">ข้อมูลสถานศึกษา</h3>

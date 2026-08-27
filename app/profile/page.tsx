@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import Image from "next/image";
 import { auth } from "@/lib/auth";
+import { maskCitizenId } from "@/lib/format";
 import { isUserRole, ROLE_LABELS } from "@/lib/roles";
 import { UserRepository } from "@/repositories/user.repository";
 import { updateOwnProfileAction, deleteOwnAccountAction } from "@/actions/user.action";
@@ -110,7 +111,7 @@ export default async function ProfilePage({ searchParams }: Props) {
 
             <article className="dashboard-card profile-card">
               <span>รหัสประชาชน</span>
-              <strong>{user.citizenId || "-"}</strong>
+              <strong>{maskCitizenId(user.citizenId)}</strong>
             </article>
 
             <article className="dashboard-card profile-card">

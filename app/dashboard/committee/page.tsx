@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { maskCitizenId } from "@/lib/format";
 import { ROLE_LABELS } from "@/lib/roles";
 import { UserRepository } from "@/repositories/user.repository";
 import { approveTeacherAction, bulkApproveTeachersAction, committeeUpdateUserAction, committeeDeleteUserAction } from "@/actions/user.action";
@@ -198,7 +199,7 @@ export default async function CommitteeDashboardPage({ searchParams }: Props) {
             <article className="dashboard-card profile-card"><span>นามสกุล (อังกฤษ)</span><strong>{selectedUser.lastNameEn || "-"}</strong></article>
             <article className="dashboard-card profile-card"><span>อีเมล</span><strong>{selectedUser.email || "-"}</strong></article>
             <article className="dashboard-card profile-card"><span>เบอร์โทร</span><strong>{selectedUser.phone || "-"}</strong></article>
-            <article className="dashboard-card profile-card"><span>รหัสประชาชน</span><strong>{selectedUser.citizenId || "-"}</strong></article>
+            <article className="dashboard-card profile-card"><span>รหัสประชาชน</span><strong>{maskCitizenId(selectedUser.citizenId)}</strong></article>
             <article className="dashboard-card profile-card"><span>ภูมิภาค</span><strong>{selectedUser.region || "-"}</strong></article>
             <article className="dashboard-card profile-card"><span>จังหวัด</span><strong>{selectedUser.province || "-"}</strong></article>
             <article className="dashboard-card profile-card"><span>สำนักงานอาชีวศึกษาจังหวัด</span><strong>{selectedUser.vocationalOffice || "-"}</strong></article>

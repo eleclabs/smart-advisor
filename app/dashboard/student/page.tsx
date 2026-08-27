@@ -9,6 +9,7 @@ import {
   , importStudentsAction
 } from "@/actions/student.action";
 import { auth } from "@/lib/auth";
+import { maskCitizenId } from "@/lib/format";
 import { CLASS_LEVEL_OPTIONS } from "@/lib/student-options";
 import { MajorRepository } from "@/repositories/major.repository";
 import StudentImport from "@/components/StudentImport";
@@ -349,7 +350,7 @@ function StudentProfile({ student }: { student: StudentView }) {
           <span>{student.studentCode}</span>
           <h2>{student.title ? `${student.title} ${student.fullname}` : student.fullname}</h2>
           <p>{classInfo} / {student.major}</p>
-          <p>เลขประจำตัวประชาชน: {student.citizenId || '-'}</p>
+          <p>เลขประจำตัวประชาชน: {maskCitizenId(student.citizenId)}</p>
           <p>ชื่อเล่น: {student.nickname || '-'}</p>
         </div>
       </div>
