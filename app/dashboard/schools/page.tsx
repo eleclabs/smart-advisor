@@ -2,12 +2,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { SchoolRepository } from "@/repositories/school.repository";
-import { importSchoolsAction } from "@/actions/school.action";
+import { importSchoolsAction, addPrivateSchoolAction } from "@/actions/school.action";
 
 export default async function SchoolsPage({
   searchParams
 }: {
-  searchParams?: Promise<{ imported?: string; error?: string }>;
+  searchParams?: Promise<{ imported?: string; error?: string; privateAdded?: string; privateError?: string }>;
 }) {
   const session = await auth();
 
@@ -19,6 +19,8 @@ export default async function SchoolsPage({
   const params = (await searchParams) ?? {};
   const importedCount = params.imported ? Number(params.imported) : null;
   const importError = params.error ? decodeURIComponent(params.error) : null;
+  const privateAddedName = params.privateAdded ? decodeURIComponent(params.privateAdded) : null;
+  const privateError = params.privateError ? decodeURIComponent(params.privateError) : null;
 
   return (
     <section className="management-content">
@@ -55,6 +57,33 @@ export default async function SchoolsPage({
             <input name="csvFile" required type="file" accept=".csv,text/csv" />
           </label>
           <button className="management-primary-button" type="submit">นำเข้าไฟล์</button>
+        </form>
+      </div>
+
+      <div className="management-card">
+        <div className="management-section-header">
+          <div>
+            <h2>เพิ่มสถานศึกษาเอกชน</h2>
+            <p>พิมพ์ชื่อสถานศึกษาเอกชนเพื่อเพิ่มเข้าระบบ ให้ผู้สมัครสามารถเลือกได้ที่หน้าสมัครสมาชิก</p>
+          </div>
+        </div>
+
+        <form className="management-form" action={addPrivateSchoolAction}>
+          {privateAddedName ? (
+            <p className="auth-message auth-message-success">เพิ่มสถานศึกษา &quot;{privateAddedName}&quot; เรียบร้อยแล้ว</p>
+          ) : null}
+          {privateError ? (
+            <p className="auth-message auth-message-error">{privateError}</p>
+          ) : null}
+          <label>
+            ชื่อสถานศึกษาเอกชน
+            <input name="name" required placeholder="เช่น โรงเรียนเอกชน..." />
+          </label>
+          <label>
+            จังหวัด
+            <input name="province" placeholder="จังหวัดที่ตั้งสถานศึกษา" />
+          </label>
+          <button className="management-primary-button" type="submit">เพิ่มสถานศึกษา</button>
         </form>
       </div>
 

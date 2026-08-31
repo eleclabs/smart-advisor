@@ -93,3 +93,31 @@ export async function importSchoolsAction(formData: FormData) {
 
   redirect("/dashboard/schools?imported=" + schools.length);
 }
+
+const PRIVATE_SCHOOL_MARKER = "สถานศึกษาเอกชน";
+
+export async function addPrivateSchoolAction(formData: FormData) {
+  const name = String(formData.get("name") || "").trim();
+  const province = String(formData.get("province") || "").trim();
+
+  if (!name) {
+    redirect("/dashboard/schools?privateError=" + encodeURIComponent("กรุณากรอกชื่อสถานศึกษา"));
+  }
+
+  try {
+    await SchoolRepository.create({
+      name,
+      province,
+      region: PRIVATE_SCHOOL_MARKER,
+      vocationalOffice: PRIVATE_SCHOOL_MARKER,
+      educationType: PRIVATE_SCHOOL_MARKER
+    });
+  } catch (error: any) {
+    if (error?.code === 11000) {
+      redirect("/dashboard/schools?privateError=" + encodeURIComponent("มีสถานศึกษาชื่อนี้อยู่ในระบบแล้ว"));
+    }
+    redirect("/dashboard/schools?privateError=" + encodeURIComponent("ไม่สามารถเพิ่มสถานศึกษาได้"));
+  }
+
+  redirect("/dashboard/schools?privateAdded=" + encodeURIComponent(name));
+}
