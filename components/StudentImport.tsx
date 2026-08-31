@@ -86,6 +86,13 @@ export default function StudentImport() {
 
   return (
     <div className="student-import">
+      <p>
+        ไม่แน่ใจว่าไฟล์ CSV ต้องมีคอลัมน์อะไรบ้าง?{" "}
+        <a href="/templates/student-import-sample.csv" download>
+          ดาวน์โหลดไฟล์ตัวอย่าง (student-import-sample.csv)
+        </a>{" "}
+        แล้วกรอกข้อมูลตามคอลัมน์: {TARGET_FIELDS.join(", ")}
+      </p>
       <label>
         นำเข้าไฟล์ CSV
         <input type="file" accept=".csv" onChange={onFileChange} />
