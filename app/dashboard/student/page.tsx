@@ -486,21 +486,17 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
           </p>
         </div>
 
-        <div style={{ display: "flex", gap: 12, alignItems: "center", flexDirection: "column" }}>
-          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <Link
-              className="management-primary-link"
-              href={showStudentList ? "/dashboard/student?mode=add" : "/dashboard/student"}
-            >
-              {showStudentList ? "เพิ่มผู้เรียน" : "กลับไปรายชื่อ"}
-            </Link>
-          </div>
-
-          <div style={{ width: "100%" }}>
-            <StudentImport />
-          </div>
+        <div className="management-actions">
+          <Link
+            className="management-primary-link"
+            href={showStudentList ? "/dashboard/student?mode=add" : "/dashboard/student"}
+          >
+            {showStudentList ? "เพิ่มผู้เรียน" : "กลับไปรายชื่อ"}
+          </Link>
         </div>
       </div>
+
+      {showStudentList ? <StudentImport /> : null}
 
       {showStudentList ? (
         <div className="management-card">

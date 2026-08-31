@@ -85,24 +85,36 @@ export default function StudentImport() {
   }
 
   return (
-    <div className="student-import">
-      <p>
-        ไม่แน่ใจว่าไฟล์ CSV ต้องมีคอลัมน์อะไรบ้าง?{" "}
-        <a href="/templates/student-import-sample.csv" download>
+    <div className="management-card student-import">
+      <div className="management-section-header">
+        <div>
+          <h2>นำเข้าข้อมูลผู้เรียนจากไฟล์ CSV</h2>
+          <p>อัปโหลดไฟล์ CSV แล้วแมปคอลัมน์ให้ตรงกับข้อมูลผู้เรียนก่อนนำเข้า</p>
+        </div>
+      </div>
+
+      <div className="student-import-hint">
+        <span>ไม่แน่ใจว่าไฟล์ CSV ต้องมีคอลัมน์อะไรบ้าง?</span>
+        <a className="student-import-template-link" href="/templates/student-import-sample.csv" download>
           ดาวน์โหลดไฟล์ตัวอย่าง (student-import-sample.csv)
-        </a>{" "}
-        แล้วกรอกข้อมูลตามคอลัมน์: {TARGET_FIELDS.join(", ")}
-      </p>
-      <label>
-        นำเข้าไฟล์ CSV
+        </a>
+        <div className="student-import-fields">
+          {TARGET_FIELDS.map((f) => (
+            <code key={f}>{f}</code>
+          ))}
+        </div>
+      </div>
+
+      <label className="student-import-dropzone">
+        <span className="student-import-dropzone-title">นำเข้าไฟล์ CSV</span>
         <input type="file" accept=".csv" onChange={onFileChange} />
+        <span className="student-import-dropzone-hint">{fileName || "ยังไม่ได้เลือกไฟล์"}</span>
       </label>
-      {fileName ? <p>ไฟล์: {fileName}</p> : null}
 
       {headers.length ? (
-        <div>
+        <div className="student-import-mapping">
           <h4>แมปคอลัมน์</h4>
-          <div style={{ overflowX: "auto" }}>
+          <div className="student-import-table-wrap">
             <table className="import-mapping-table">
               <thead>
                 <tr>
@@ -131,13 +143,17 @@ export default function StudentImport() {
             </table>
           </div>
 
-          <div style={{ marginTop: 8 }}>
-            <button disabled={loading} onClick={handleImport} type="button">
+          <div className="student-import-actions">
+            <button className="management-primary-button" disabled={loading} onClick={handleImport} type="button">
               {loading ? "กำลังนำเข้า..." : "นำเข้าตามการแมป"}
             </button>
           </div>
 
-          {status ? <p className="import-status">{status}</p> : null}
+          {status ? (
+            <p className={`auth-message ${status === "นำเข้าข้อมูลสำเร็จ" ? "auth-message-success" : "auth-message-error"}`}>
+              {status}
+            </p>
+          ) : null}
         </div>
       ) : null}
     </div>
