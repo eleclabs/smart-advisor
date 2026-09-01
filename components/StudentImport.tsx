@@ -229,7 +229,6 @@ export default function StudentImport() {
       </div>
 
       <div className="student-import-hint">
-        <span>ไม่แน่ใจว่าไฟล์ต้องมีคอลัมน์อะไรบ้าง?</span>
         <div className="student-import-template-links">
           <a className="student-import-template-link" href="/templates/student-import-sample.csv" download>
             ดาวน์โหลดไฟล์ตัวอย่าง CSV

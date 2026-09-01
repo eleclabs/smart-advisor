@@ -170,7 +170,6 @@ function StudentForm({
         <label>
           รูปโปรไฟล์ผู้เรียน
           <input accept=".jpg,.jpeg,.png,.gif,.webp,image/*" name="profileImage" type="file" />
-          <small>รูปจะถูกย่อและบีบอัดเป็น WebP ก่อนจัดเก็บบน Cloudinary</small>
         </label>
         {student?.profileImageUrl ? (
           <label className="profile-remove-option">
