@@ -1,3 +1,3 @@
-﻿studentCode,fullname,classLevel,room,major,phone,gender,birthDate,citizenId,nickname
-STD001,นายสมชาย ใจดี,ปวช.1,1,คอมพิวเตอร์ธุรกิจ,0812345678,ชาย,2008-05-12,1103700123456,ชาย
-STD002,นางสาวสมหญิง รักเรียน,ปวช.1,1,การบัญชี,0898765432,หญิง,2008-09-20,1103700654321,หญิง
+﻿studentCode,title,fullname,nickname,gender,birthDate,age,citizenId,classLevel,room,major,phone,weight,height,bloodType,nationality,religion,studentType,disabilityType,specialAbility,chronicDisease,guardianName,address,note
+STD001,นาย,สมชาย ใจดี,ชาย,ชาย,2008-05-12,17,1103700123456,ปวช.1,1,คอมพิวเตอร์ธุรกิจ,0812345678,55,170,O,ไทย,พุทธ,ปกติ,-,ดนตรี,-,นางสมศรี ใจดี,123 หมู่ 1 ต.บางรัก อ.เมือง จ.กรุงเทพมหานคร,-
+STD002,นางสาว,สมหญิง รักเรียน,หญิง,หญิง,2008-09-20,17,1103700654321,ปวช.1,1,การบัญชี,0898765432,48,160,A,ไทย,พุทธ,ปกติ,-,กีฬา,-,นายสมหมาย รักเรียน,456 หมู่ 2 ต.บางรัก อ.เมือง จ.กรุงเทพมหานคร,-

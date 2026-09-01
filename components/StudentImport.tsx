@@ -5,15 +5,29 @@ import * as XLSX from "xlsx";
 
 const TARGET_FIELDS = [
   "studentCode",
+  "title",
   "fullname",
+  "nickname",
+  "gender",
+  "birthDate",
+  "age",
+  "citizenId",
   "classLevel",
   "room",
   "major",
   "phone",
-  "gender",
-  "birthDate",
-  "citizenId",
-  "nickname"
+  "weight",
+  "height",
+  "bloodType",
+  "nationality",
+  "religion",
+  "studentType",
+  "disabilityType",
+  "specialAbility",
+  "chronicDisease",
+  "guardianName",
+  "address",
+  "note"
 ];
 
 const REQUIRED_FIELDS = ["studentCode", "fullname", "classLevel", "major", "gender"];
