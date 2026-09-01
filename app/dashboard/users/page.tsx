@@ -197,7 +197,6 @@ function UserForm({
             name="profileImage"
             type="file"
           />
-          <small>รูปจะถูกย่อและบีบอัดเป็น WebP ก่อนจัดเก็บบน Cloudinary</small>
         </label>
         {user.profileImageUrl ? (
           <label className="profile-remove-option">
