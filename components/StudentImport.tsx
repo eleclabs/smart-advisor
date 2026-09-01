@@ -16,6 +16,8 @@ const TARGET_FIELDS = [
   "nickname"
 ];
 
+const REQUIRED_FIELDS = ["studentCode", "fullname", "classLevel", "major", "gender"];
+
 function sheetToTable(sheet: XLSX.WorkSheet) {
   const matrix = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1, raw: false, defval: "" });
   const rows = matrix
@@ -77,6 +79,14 @@ export default function StudentImport() {
 
   async function handleImport() {
     setStatus(null);
+
+    const mappedFields = new Set(Object.values(mapping).filter(Boolean));
+    const missingRequired = REQUIRED_FIELDS.filter((f) => !mappedFields.has(f));
+    if (missingRequired.length) {
+      setStatus(`กรุณาแมปคอลัมน์ที่จำเป็นให้ครบ: ${missingRequired.join(", ")}`);
+      return;
+    }
+
     // build mapped objects using current mapping
     const mapped = rows.map((r) => {
       const obj: Record<string, string> = {};
@@ -101,7 +111,13 @@ export default function StudentImport() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message || "Import failed");
-      setStatus("นำเข้าข้อมูลสำเร็จ");
+
+      const skipped = Array.isArray(data.skipped) ? data.skipped : [];
+      const importedCount = typeof data.imported === "number" ? data.imported : mapped.length;
+      const skippedNote = skipped.length
+        ? ` (ข้าม ${skipped.length} แถวเนื่องจากข้อมูลไม่ครบ: ${skipped.map((s: any) => `แถว ${s.row}`).join(", ")})`
+        : "";
+      setStatus(`นำเข้าข้อมูลสำเร็จ ${importedCount} รายการ${skippedNote}`);
     } catch (err: any) {
       setStatus(String(err.message || err));
     } finally {
@@ -130,9 +146,10 @@ export default function StudentImport() {
         </div>
         <div className="student-import-fields">
           {TARGET_FIELDS.map((f) => (
-            <code key={f}>{f}</code>
+            <code key={f}>{f}{REQUIRED_FIELDS.includes(f) ? " *" : ""}</code>
           ))}
         </div>
+        <span>* คอลัมน์ที่จำเป็นต้องแมปก่อนนำเข้า</span>
       </div>
 
       <label className="student-import-dropzone">
@@ -158,7 +175,10 @@ export default function StudentImport() {
                       <select value={mapping[idx] || ""} onChange={(e) => setMap(idx, e.target.value)}>
                         <option value="">-- ไม่ระบุ --</option>
                         {TARGET_FIELDS.map((f) => (
-                          <option key={f} value={f}>{f}</option>
+                          <option key={f} value={f}>
+                            {f}
+                            {REQUIRED_FIELDS.includes(f) ? " *" : ""}
+                          </option>
                         ))}
                       </select>
                     </th>
@@ -184,7 +204,7 @@ export default function StudentImport() {
           </div>
 
           {status ? (
-            <p className={`auth-message ${status === "นำเข้าข้อมูลสำเร็จ" ? "auth-message-success" : "auth-message-error"}`}>
+            <p className={`auth-message ${status.startsWith("นำเข้าข้อมูลสำเร็จ") ? "auth-message-success" : "auth-message-error"}`}>
               {status}
             </p>
           ) : null}
