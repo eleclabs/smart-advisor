@@ -2346,6 +2346,12 @@ h2{
   color: #0b1f3a;
 }
 
+.student-import-mapping-hint {
+  margin: 0 0 12px;
+  color: #64748b;
+  font-size: 13px;
+}
+
 .student-import-table-wrap {
   overflow-x: auto;
   border: 1px solid #e2e8f0;

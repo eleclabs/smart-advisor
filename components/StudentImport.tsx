@@ -32,6 +32,86 @@ const TARGET_FIELDS = [
 
 const REQUIRED_FIELDS = ["studentCode", "fullname", "classLevel", "major", "gender"];
 
+const HEADER_ALIASES: Record<string, string> = {
+  studentcode: "studentCode",
+  "รหัส": "studentCode",
+  "รหัสผู้เรียน": "studentCode",
+  "รหัสนักเรียน": "studentCode",
+  title: "title",
+  "คำนำหน้า": "title",
+  "คำนำหน้านาม": "title",
+  fullname: "fullname",
+  name: "fullname",
+  "ชื่อ-สกุล": "fullname",
+  "ชื่อสกุล": "fullname",
+  "ชื่อ": "fullname",
+  nickname: "nickname",
+  "ชื่อเล่น": "nickname",
+  gender: "gender",
+  "เพศ": "gender",
+  birthdate: "birthDate",
+  birthday: "birthDate",
+  "วันเกิด": "birthDate",
+  age: "age",
+  "อายุ": "age",
+  citizenid: "citizenId",
+  "เลขบัตร": "citizenId",
+  "เลขบัตรประชาชน": "citizenId",
+  "เลขประจำตัวประชาชน": "citizenId",
+  classlevel: "classLevel",
+  "ชั้น": "classLevel",
+  "ระดับชั้น": "classLevel",
+  room: "room",
+  "ห้อง": "room",
+  major: "major",
+  "สาขา": "major",
+  "สาขาวิชา": "major",
+  phone: "phone",
+  "เบอร์โทร": "phone",
+  "เบอร์โทรศัพท์": "phone",
+  "โทรศัพท์": "phone",
+  weight: "weight",
+  "น้ำหนัก": "weight",
+  height: "height",
+  "ส่วนสูง": "height",
+  bloodtype: "bloodType",
+  "กรุ๊ปเลือด": "bloodType",
+  "หมู่เลือด": "bloodType",
+  nationality: "nationality",
+  "สัญชาติ": "nationality",
+  religion: "religion",
+  "ศาสนา": "religion",
+  studenttype: "studentType",
+  "ประเภทผู้เรียน": "studentType",
+  disabilitytype: "disabilityType",
+  "ความพิการ": "disabilityType",
+  "ประเภทความพิการ": "disabilityType",
+  specialability: "specialAbility",
+  "ความสามารถพิเศษ": "specialAbility",
+  chronicdisease: "chronicDisease",
+  "โรคประจำตัว": "chronicDisease",
+  guardianname: "guardianName",
+  "ผู้ปกครอง": "guardianName",
+  "ชื่อผู้ปกครอง": "guardianName",
+  address: "address",
+  "ที่อยู่": "address",
+  note: "note",
+  "หมายเหตุ": "note"
+};
+
+function guessMapping(headers: string[]) {
+  const mapping: Record<number, string> = {};
+  const used = new Set<string>();
+  headers.forEach((h, idx) => {
+    const field = HEADER_ALIASES[h.trim().toLowerCase()];
+    if (field && !used.has(field)) {
+      mapping[idx] = field;
+      used.add(field);
+    }
+  });
+  return mapping;
+}
+
 function sheetToTable(sheet: XLSX.WorkSheet) {
   const matrix = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1, raw: false, defval: "" });
   const rows = matrix
@@ -72,7 +152,7 @@ export default function StudentImport() {
           : parseWorkbook(reader.result as ArrayBuffer, false);
         setHeaders(parsed.headers);
         setRows(parsed.rows.slice(0, 200));
-        setMapping({});
+        setMapping(guessMapping(parsed.headers));
       } catch {
         setStatus("ไม่สามารถอ่านไฟล์นี้ได้ กรุณาตรวจสอบรูปแบบไฟล์ (CSV, XLS, XLSX)");
         setHeaders([]);
@@ -179,6 +259,9 @@ export default function StudentImport() {
       {headers.length ? (
         <div className="student-import-mapping">
           <h4>แมปคอลัมน์</h4>
+          <p className="student-import-mapping-hint">
+            ระบบแมปคอลัมน์ให้อัตโนมัติจากชื่อหัวตารางที่ตรงกับไฟล์ตัวอย่าง กรุณาตรวจสอบและแก้ไขคอลัมน์ที่มี * ให้ครบก่อนนำเข้า
+          </p>
           <div className="student-import-table-wrap">
             <table className="import-mapping-table">
               <thead>
