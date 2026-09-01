@@ -2287,6 +2287,12 @@ h2{
   text-decoration: underline;
 }
 
+.student-import-template-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
 .student-import-fields {
   display: flex;
   flex-wrap: wrap;

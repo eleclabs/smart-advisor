@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import * as XLSX from "xlsx";
 
 const TARGET_FIELDS = [
   "studentCode",
@@ -15,12 +16,21 @@ const TARGET_FIELDS = [
   "nickname"
 ];
 
-function parseCSV(text: string) {
-  const lines = text.split(/\r?\n/).filter((l) => l.trim() !== "");
-  if (!lines.length) return { headers: [], rows: [] };
-  const rawHeaders = lines[0].split(",").map((h) => h.trim());
-  const rows = lines.slice(1).map((line) => line.split(",").map((c) => c.trim()));
-  return { headers: rawHeaders, rows };
+function sheetToTable(sheet: XLSX.WorkSheet) {
+  const matrix = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1, raw: false, defval: "" });
+  const rows = matrix
+    .map((row) => row.map((cell) => String(cell ?? "").trim()))
+    .filter((row) => row.some((cell) => cell !== ""));
+  if (!rows.length) return { headers: [], rows: [] };
+  const [headers, ...rest] = rows;
+  return { headers, rows: rest };
+}
+
+function parseWorkbook(data: ArrayBuffer | string, isCsv: boolean) {
+  const workbook = XLSX.read(data, isCsv ? { type: "string" } : { type: "array" });
+  const firstSheetName = workbook.SheetNames[0];
+  if (!firstSheetName) return { headers: [], rows: [] };
+  return sheetToTable(workbook.Sheets[firstSheetName]);
 }
 
 export default function StudentImport() {
@@ -35,15 +45,30 @@ export default function StudentImport() {
     const f = e.target.files && e.target.files[0];
     if (!f) return;
     setFileName(f.name);
+    setStatus(null);
+
+    const isCsv = /\.csv$/i.test(f.name);
     const reader = new FileReader();
     reader.onload = () => {
-      const text = String(reader.result || "");
-      const parsed = parseCSV(text);
-      setHeaders(parsed.headers);
-      setRows(parsed.rows.slice(0, 200));
-      setMapping({});
+      try {
+        const parsed = isCsv
+          ? parseWorkbook(String(reader.result || ""), true)
+          : parseWorkbook(reader.result as ArrayBuffer, false);
+        setHeaders(parsed.headers);
+        setRows(parsed.rows.slice(0, 200));
+        setMapping({});
+      } catch {
+        setStatus("ไม่สามารถอ่านไฟล์นี้ได้ กรุณาตรวจสอบรูปแบบไฟล์ (CSV, XLS, XLSX)");
+        setHeaders([]);
+        setRows([]);
+      }
     };
-    reader.readAsText(f, "utf-8");
+
+    if (isCsv) {
+      reader.readAsText(f, "utf-8");
+    } else {
+      reader.readAsArrayBuffer(f);
+    }
   }
 
   function setMap(colIndex: number, field: string) {
@@ -88,16 +113,21 @@ export default function StudentImport() {
     <div className="management-card student-import">
       <div className="management-section-header">
         <div>
-          <h2>นำเข้าข้อมูลผู้เรียนจากไฟล์ CSV</h2>
-          <p>อัปโหลดไฟล์ CSV แล้วแมปคอลัมน์ให้ตรงกับข้อมูลผู้เรียนก่อนนำเข้า</p>
+          <h2>นำเข้าข้อมูลผู้เรียนจากไฟล์ CSV / Excel</h2>
+          <p>อัปโหลดไฟล์ CSV, XLS หรือ XLSX แล้วแมปคอลัมน์ให้ตรงกับข้อมูลผู้เรียนก่อนนำเข้า</p>
         </div>
       </div>
 
       <div className="student-import-hint">
-        <span>ไม่แน่ใจว่าไฟล์ CSV ต้องมีคอลัมน์อะไรบ้าง?</span>
-        <a className="student-import-template-link" href="/templates/student-import-sample.csv" download>
-          ดาวน์โหลดไฟล์ตัวอย่าง (student-import-sample.csv)
-        </a>
+        <span>ไม่แน่ใจว่าไฟล์ต้องมีคอลัมน์อะไรบ้าง?</span>
+        <div className="student-import-template-links">
+          <a className="student-import-template-link" href="/templates/student-import-sample.csv" download>
+            ดาวน์โหลดไฟล์ตัวอย่าง CSV
+          </a>
+          <a className="student-import-template-link" href="/templates/student-import-sample.xlsx" download>
+            ดาวน์โหลดไฟล์ตัวอย่าง Excel
+          </a>
+        </div>
         <div className="student-import-fields">
           {TARGET_FIELDS.map((f) => (
             <code key={f}>{f}</code>
@@ -106,8 +136,12 @@ export default function StudentImport() {
       </div>
 
       <label className="student-import-dropzone">
-        <span className="student-import-dropzone-title">นำเข้าไฟล์ CSV</span>
-        <input type="file" accept=".csv" onChange={onFileChange} />
+        <span className="student-import-dropzone-title">นำเข้าไฟล์ CSV, XLS หรือ XLSX</span>
+        <input
+          type="file"
+          accept=".csv,.xls,.xlsx,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          onChange={onFileChange}
+        />
         <span className="student-import-dropzone-hint">{fileName || "ยังไม่ได้เลือกไฟล์"}</span>
       </label>
 
